@@ -637,7 +637,11 @@
   window.addEventListener('mousedown', primeAudioFromGesture, { passive: true, once: true });
   window.addEventListener('keydown', primeAudioFromGesture, { passive: true, once: true });
 
-  btnSound.addEventListener('click', () => setSound(!soundOn));
+  const renderSoundLabel = () => {
+    btnSound.textContent = soundOn ? 'Sound ON' : 'Sound OFF';
+  };
+
+  btnSound.addEventListener('click', () => { setSound(!soundOn); renderSoundLabel(); });
 
   btnPause.addEventListener("click", () => {
     // if it shows Resume, it means paused
@@ -671,6 +675,7 @@
 
   // start
   setSound(false);
+  renderSoundLabel();
   // init game state once so render loop doesn't crash even while menu is shown
   restart();
   paused = true;

@@ -29,13 +29,13 @@
 
     <div id="gameScreen" class="hidden">
     <header class="topbar">
-      <div class="title">Mini<br>Tetris</div>
-      <div class="stats-row" aria-label="stats">
-        <div class="stat"><div class="k">Score</div><div class="v" id="score">0</div></div>
-        <div class="stat mini"><div class="k">Lines</div><div class="v" id="lines">0</div></div>
+      <div class="title">Mini Tetris</div>
+      <div class="stats-inline" aria-label="stats">
+        <span class="pill">Score <b id="score">0</b></span>
+        <span class="pill">Lines <b id="lines">0</b></span>
       </div>
       <div class="top-actions">
-        <button id="btnSound" class="small" aria-label="toggle sound">Sound: OFF</button>
+        <button id="btnSound" class="small" aria-label="toggle sound">Sound</button>
         <button id="btnMenu" class="small" aria-label="back to menu">Menu</button>
       </div>
     </header>
@@ -68,16 +68,12 @@
         </div>
       </section>
 
-      <section class="controls" aria-label="touch controls">
-        <div class="pad pad-left" aria-label="move pad">
-          <button class="ctl" id="btnLeft"  aria-label="move left">◀</button>
-          <button class="ctl" id="btnRight" aria-label="move right">▶</button>
-        </div>
-        <div class="pad pad-right" aria-label="action pad">
-          <button class="ctl" id="btnRot"   aria-label="rotate">⟳</button>
-          <button class="ctl" id="btnDown"  aria-label="soft drop">▼</button>
-        </div>
-        <button class="ctl wide" id="btnDrop" aria-label="hard drop">DROP</button>
+      <section class="controls one-row" aria-label="touch controls">
+        <button class="ctl" id="btnLeft"  aria-label="move left">◀</button>
+        <button class="ctl" id="btnRight" aria-label="move right">▶</button>
+        <button class="ctl" id="btnRot"   aria-label="rotate">⟳</button>
+        <button class="ctl" id="btnDown"  aria-label="soft drop">▼</button>
+        <button class="ctl" id="btnDrop" aria-label="hard drop">DROP</button>
       </section>
 
       <section id="overlay" class="overlay hidden" role="dialog" aria-modal="true">

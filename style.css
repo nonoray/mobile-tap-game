@@ -76,41 +76,39 @@ body::before{
 .menu-btn:disabled{opacity:.45}
 .menu-note{margin-top:12px;color:rgba(255,194,223,.9);font-size:12px;text-align:center}
 .topbar{
-  display:grid;
-  grid-template-columns: auto 1fr auto;
+  display:flex;
   gap:10px;
   align-items:center;
+  justify-content:space-between;
   background: linear-gradient(180deg, rgba(255,79,184,.16), rgba(18,24,38,.32));
   border:1px solid rgba(255,255,255,.16);
   backdrop-filter: blur(12px);
-  border-radius:18px;
-  padding:8px 10px;
+  padding:6px 10px;
   box-shadow: 0 12px 30px rgba(255,79,184,.10);
 }
 .title{
   font-family: "Yusei Magic", "Zen Kaku Gothic New", system-ui, sans-serif;
   font-weight: 900;
   letter-spacing: .04em;
-  line-height: 1.05;
+  line-height: 1;
+  font-size: 16px;
+  white-space: nowrap;
 }
-.top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.top-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
 
-/* stats: compact + readable */
-.stats-row{display:flex;gap:8px;align-items:center;justify-content:center;flex:1;min-width:120px}
-.stat{
-  padding:4px 10px;
-  border-radius:999px;
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.10);
-  text-align:center;
-  min-width:0;
-  display:flex;
+.stats-inline{display:flex;gap:6px;align-items:center;justify-content:center;flex:1;min-width:0}
+.pill{
+  display:inline-flex;
   gap:6px;
   align-items:baseline;
+  padding:3px 8px;
+  border:1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.05);
+  font-size:12px;
+  letter-spacing:.06em;
+  white-space:nowrap;
 }
-.stat.mini{opacity:.86; padding:4px 8px}
-.stat .k{font-size:10px;letter-spacing:.14em;color:rgba(255,194,223,.92);line-height:1}
-.stat .v{font-size:14px;font-weight:900;line-height:1.05; min-width: 2ch}
+.pill b{font-size:13px; font-weight:1000; letter-spacing:0}
 button{
   border:1px solid rgba(255,255,255,.16);
   background: linear-gradient(180deg, rgba(255,79,184,.42), rgba(58,16,48,.86));
@@ -264,12 +262,12 @@ canvas{
 .help ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.45}
 .hint{margin-top:8px;color:rgba(234,240,255,.75);font-size:12px}
 .controls{
-  /* bottom controls, sized to avoid scrolling */
+  /* one-row controls */
   margin: 10px auto 0;
-  width: min(92vw, 420px);
+  width: min(92vw, 520px);
 
   display:grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 52px 52px 52px 52px 1fr;
   gap:10px;
 
   padding: 10px;
@@ -280,16 +278,8 @@ canvas{
 
   flex: 0 0 auto;
 }
-.pad{display:grid;grid-template-columns: 1fr 1fr;gap:10px}
-.pad-left{justify-self:start}
-.pad-right{justify-self:end}
-.ctl{min-height:56px;font-size:18px;border-radius:0px}
-.ctl.wide{
-  grid-column: 1 / -1;
-  min-height:62px;
-  letter-spacing:.10em;
-  font-size:16px;
-}
+.ctl{min-height:52px;font-size:18px;border-radius:0px}
+#btnDrop{font-size:14px;letter-spacing:.12em}
 .overlay{
   position:absolute;inset:0;
   display:flex;align-items:center;justify-content:center;
