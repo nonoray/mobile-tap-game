@@ -64,22 +64,22 @@ body::before{
 .menu-btn:disabled{opacity:.45}
 .menu-note{margin-top:12px;color:rgba(255,194,223,.9);font-size:12px;text-align:center}
 .topbar{
-  display:flex;gap:12px;align-items:center;justify-content:space-between;
+  display:flex;gap:10px;align-items:center;justify-content:space-between;
   background: linear-gradient(180deg, rgba(255,79,184,.14), rgba(18,24,38,.35));
   border:1px solid rgba(255,255,255,.14);
   backdrop-filter: blur(12px);
   border-radius:16px;
-  padding:10px 12px;
+  padding:8px 10px;
   box-shadow: 0 12px 30px rgba(255,79,184,.10);
 }
 .title{font-weight:800;letter-spacing:.3px}
 .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
 
 /* stats: compact + readable */
-.stats-row{display:flex;gap:10px;align-items:center;justify-content:center;flex:1;min-width:160px}
-.stat{padding:6px 10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);text-align:center;min-width:72px}
-.stat .k{font-size:11px;letter-spacing:.12em;color:rgba(255,194,223,.95)}
-.stat .v{font-size:16px;font-weight:900;line-height:1.1}
+.stats-row{display:flex;gap:8px;align-items:center;justify-content:center;flex:1;min-width:140px}
+.stat{padding:5px 8px;border-radius:12px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.10);text-align:center;min-width:62px}
+.stat .k{font-size:10px;letter-spacing:.10em;color:rgba(255,194,223,.92);line-height:1}
+.stat .v{font-size:14px;font-weight:900;line-height:1.05}
 button{
   border:1px solid rgba(255,255,255,.14);
   background: linear-gradient(180deg, rgba(255,79,184,.38), rgba(58,16,48,.85));
@@ -92,7 +92,7 @@ button{
 }
 button:hover{filter:saturate(1.08)}
 button:active{transform: translateY(1px) scale(.99); filter:saturate(1.15)}
-button.small{padding:10px 12px;font-size:14px}
+button.small{padding:8px 10px;font-size:13px}
 button.primary{background: linear-gradient(180deg, #ff7ad1, var(--accent));}
 .main{margin-top:12px;position:relative}
 .game{
