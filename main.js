@@ -623,8 +623,9 @@
 
     let aliens = [];  // {x,y,w,h,alive}
     let axDir = 1;
-    let axSpeed = 38; // px/sec, ramps
-    let descend = 14;
+    let axSpeed = 24; // px/sec (actual speed is time-ramped)
+    let descend = 10;
+    let elapsed = 0; // seconds since game start
     let fireCooldown = 0;
     let invaderShotTimer = 0;
 
@@ -656,7 +657,7 @@
         }
       }
       axDir = 1;
-      axSpeed = 38;
+      axSpeed = 24;
     }
 
     function restart() {
@@ -669,6 +670,7 @@
       player.x = W / 2;
       fireCooldown = 0;
       invaderShotTimer = 0;
+      elapsed = 0;
       resetAliens();
       updateHUD();
       hideOverlay();
@@ -705,7 +707,12 @@
     function step(dt) {
       if (paused || gameOver) return;
 
+      elapsed += dt;
       fireCooldown = Math.max(0, fireCooldown - dt);
+
+      // time-based difficulty ramp:
+      // start gentle, then slowly speed up over time (caps to avoid "too fast")
+      const speedNow = Math.min(90, 20 + elapsed * 1.4); // px/sec
 
       // alien movement bounds
       let minX = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -720,11 +727,11 @@
       if (hitWall) {
         axDir *= -1;
         for (const a of aliens) if (a.alive) a.y += descend;
-        axSpeed = Math.min(140, axSpeed + 4);
+        // no big speed jumps on wall hit; the ramp is time-based
         beep({ f: 220, t: 0.03, type: 'triangle', gain: 0.06 });
       }
 
-      for (const a of aliens) if (a.alive) a.x += axDir * axSpeed * dt;
+      for (const a of aliens) if (a.alive) a.x += axDir * speedNow * dt;
 
       // bullets
       for (const b of bullets) b.y += b.v * dt;
@@ -786,8 +793,8 @@
       if (!anyAlive()) {
         beep({ f: 990, t: 0.12, type: 'square', gain: 0.18 });
         resetAliens();
-        // ramp difficulty a bit via faster shots
-        invaderShotTimer = 0.25;
+        // next wave: keep elapsed (time ramp) but give a brief "breathing" moment
+        invaderShotTimer = 0.40;
       }
     }
 
