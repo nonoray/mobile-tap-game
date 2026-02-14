@@ -39,7 +39,7 @@ button{
 button:active{transform: translateY(1px);filter:saturate(1.05)}
 button.small{padding:10px 12px;font-size:14px}
 button.primary{background: linear-gradient(180deg, #8c72ff, var(--accent));}
-.main{margin-top:12px;position:relative}
+.main{margin-top:12px;position:relative;padding-bottom:140px}
 .game{
   display:grid;
   grid-template-columns: 1fr 220px;
@@ -58,9 +58,12 @@ canvas{
 /* Keep the board visible together with controls on small screens */
 #board{
   display:block;
-  margin:0 auto;
-  width:min(100%, 420px);
-  height:min(60vh, 640px);
+  margin: 6px auto 18px;
+  /* avoid “横伸び”感：スマホは少し細め + 余白 */
+  width: min(100%, 360px);
+  aspect-ratio: 1 / 2;
+  height: auto;
+  max-height: 62vh;
 }
 .side{display:flex;flex-direction:column;gap:12px}
 .panel{
@@ -73,12 +76,14 @@ canvas{
 .help ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.45}
 .hint{margin-top:8px;color:rgba(234,240,255,.75);font-size:12px}
 .controls{
-  margin-top:12px;
+  margin: 0 auto;
+  margin-top: 10px;
+  max-width: 420px;
   display:grid;
   grid-template-columns: repeat(4, 1fr);
   gap:10px;
   position: sticky;
-  bottom: max(12px, env(safe-area-inset-bottom));
+  bottom: max(10px, env(safe-area-inset-bottom));
   padding: 10px;
   border-radius: 16px;
   background: rgba(18,24,38,.55);
