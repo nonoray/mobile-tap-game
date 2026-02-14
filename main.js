@@ -236,6 +236,13 @@
   function lockPiece() {
     mergePiece(current);
     clearLines();
+
+    // If blocks reach the top visible row, game over.
+    if (board[0].some(Boolean)) {
+      endGame();
+      return;
+    }
+
     spawn();
   }
 

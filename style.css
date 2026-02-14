@@ -59,11 +59,11 @@ canvas{
 #board{
   display:block;
   margin: 6px auto 18px;
-  /* avoid “横伸び”感：スマホは少し細め + 余白 */
-  width: min(100%, 360px);
+  /* iOSの表示領域変動でも縦基準で決めて「横伸び感」を抑える */
+  height: min(62vh, 640px);
+  width: auto;
+  max-width: min(92vw, 360px);
   aspect-ratio: 1 / 2;
-  height: auto;
-  max-height: 62vh;
 }
 .side{display:flex;flex-direction:column;gap:12px}
 .panel{
