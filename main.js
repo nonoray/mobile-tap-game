@@ -295,9 +295,11 @@
     current = next || takeFromBag();
     next = takeFromBag();
     current.x = (COLS / 2 | 0) - ((current.mat[0].length / 2) | 0);
-    current.y = -2;
 
-    if (collide(current.mat, current.x, current.y + 1) && collide(current.mat, current.x, current.y)) {
+    // Start visible immediately on mobile (avoid "nothing is happening" feeling)
+    current.y = 0;
+
+    if (collide(current.mat, current.x, current.y)) {
       endGame();
     }
   }
