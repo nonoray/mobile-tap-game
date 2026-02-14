@@ -120,11 +120,13 @@ button.primary{background: linear-gradient(180deg, #ff7ad1, var(--accent));}
 .screen::after{
   content:"";
   position:absolute;
-  inset:-40%;
-  background: conic-gradient(from 220deg, transparent 0 40%, rgba(255,79,184,.10) 52%, transparent 65%);
-  animation: sheen 6.5s linear infinite;
+  inset:0;
+  /* static cute highlight (no rotation) */
+  background:
+    radial-gradient(600px 260px at 30% 10%, rgba(255,255,255,.12), transparent 60%),
+    radial-gradient(420px 220px at 80% 30%, rgba(255,79,184,.10), transparent 62%);
+  opacity: .9;
 }
-@keyframes sheen{ 0%{transform: rotate(0deg)} 100%{transform: rotate(360deg)} }
 
 canvas{
   width:100%;
