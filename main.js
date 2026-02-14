@@ -469,18 +469,7 @@
   btnResume.addEventListener("click", () => pauseToggle(false));
   btnRestart.addEventListener("click", () => restart());
 
-  function updateControlsHeightVar() {
-    const el = document.querySelector('.controls');
-    if (!el) return;
-    const h = Math.ceil(el.getBoundingClientRect().height);
-    document.documentElement.style.setProperty('--controlsH', `${h}px`);
-  }
-
   // start
   restart();
-  updateControlsHeightVar();
-  window.addEventListener('resize', updateControlsHeightVar, { passive: true });
-  window.addEventListener('orientationchange', () => setTimeout(updateControlsHeightVar, 250), { passive: true });
-
   requestAnimationFrame(update);
 })();
