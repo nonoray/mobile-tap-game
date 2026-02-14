@@ -38,14 +38,15 @@
   canvas.height = ROWS * BLOCK;
 
   const COLORS = {
-    I: "#00e5ff",
-    O: "#ffd400",
-    T: "#b35cff",
-    S: "#35e07a",
-    Z: "#ff4d6d",
-    J: "#4f7cff",
-    L: "#ff9f1a",
-    G: "#20283a" // ghost
+    // brighter / cute palette
+    I: "#6ff3ff",
+    O: "#ffe46a",
+    T: "#c48bff",
+    S: "#6dffb0",
+    Z: "#ff6b9b",
+    J: "#7aa6ff",
+    L: "#ffb35c",
+    G: "rgba(255, 79, 184, .20)" // ghost
   };
 
   // 7-bag randomizer
@@ -273,6 +274,12 @@
       // SFX
       const sfxMap = {1: 660, 2: 740, 3: 880, 4: 990};
       beep({ f: sfxMap[cleared] || 880, t: 0.10, type: 'square', gain: 0.22 });
+
+      // cute flash
+      canvas.classList.remove('flash');
+      // reflow
+      void canvas.offsetWidth;
+      canvas.classList.add('flash');
 
       updateHUD();
     }
