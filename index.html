@@ -9,6 +9,22 @@
 </head>
 <body>
   <div id="app">
+
+    <section id="menuScreen" class="menu" aria-label="main menu">
+      <div class="menu-card">
+        <div class="menu-title">Mini Arcade</div>
+        <div class="menu-sub">遊びたいゲームを選んでね</div>
+        <div class="menu-grid">
+          <button id="btnMenuTetris" class="menu-btn primary">TETRIS</button>
+          <button class="menu-btn" disabled>COMING SOON</button>
+          <button class="menu-btn" disabled>COMING SOON</button>
+          <button class="menu-btn" disabled>COMING SOON</button>
+        </div>
+        <div class="menu-note">※音を鳴らすには右上の Sound を ON にしてね</div>
+      </div>
+    </section>
+
+    <div id="gameScreen" class="hidden">
     <header class="topbar">
       <div class="title">Mini Tetris</div>
       <div class="stats">
@@ -18,6 +34,7 @@
       </div>
       <div class="top-actions">
         <button id="btnSound" class="small" aria-label="toggle sound">Sound: OFF</button>
+        <button id="btnMenu" class="small" aria-label="back to menu">Menu</button>
         <button id="btnPause" class="small">Pause</button>
       </div>
     </header>
@@ -68,6 +85,7 @@
         </div>
       </section>
     </main>
+    </div>
   </div>
 
   <script src="main.js"></script>

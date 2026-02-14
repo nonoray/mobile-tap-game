@@ -16,8 +16,14 @@
   const overlayText = $("overlayText");
   const btnPause = $("btnPause");
   const btnSound = $("btnSound");
+  const btnMenu = $("btnMenu");
   const btnResume = $("btnResume");
   const btnRestart = $("btnRestart");
+
+  // menu
+  const menuScreen = $("menuScreen");
+  const gameScreen = $("gameScreen");
+  const btnMenuTetris = $("btnMenuTetris");
 
   // touch buttons
   const btnLeft = $("btnLeft");
@@ -609,8 +615,30 @@
   btnResume.addEventListener("click", () => pauseToggle(false));
   btnRestart.addEventListener("click", () => restart());
 
+  function showMenu() {
+    // stop gameplay and show menu
+    paused = true;
+    stopBGM();
+    hideOverlay();
+    menuScreen.classList.remove('hidden');
+    gameScreen.classList.add('hidden');
+  }
+
+  function startTetris() {
+    menuScreen.classList.add('hidden');
+    gameScreen.classList.remove('hidden');
+    paused = false;
+    gameOver = false;
+    restart();
+    // keep sound setting; BGM starts only if soundOn
+    if (soundOn) startBGM();
+  }
+
+  btnMenuTetris.addEventListener('click', () => startTetris());
+  btnMenu.addEventListener('click', () => showMenu());
+
   // start
-  restart();
   setSound(false);
+  showMenu();
   requestAnimationFrame(update);
 })();

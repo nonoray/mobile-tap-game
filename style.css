@@ -13,6 +13,7 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%}
+.hidden{display:none !important}
 body{
   margin:0;
   font-family: system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
@@ -44,6 +45,24 @@ body::before{
   100%{ transform: translate3d(40px,-60px,0) rotate(8deg); }
 }
 #app{max-width:980px;margin:0 auto;padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));}
+
+/* Menu */
+.menu{min-height: calc(100vh - 24px); display:flex; align-items:center; justify-content:center;}
+.menu-card{
+  width:min(520px, 92vw);
+  background: rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:22px;
+  padding:16px;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 60px rgba(0,0,0,.35), 0 0 0 2px rgba(255,79,184,.12) inset;
+}
+.menu-title{font-size:28px;font-weight:1000;letter-spacing:.06em;text-align:center}
+.menu-sub{color:rgba(255,244,251,.82);text-align:center;margin-top:6px;margin-bottom:14px}
+.menu-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.menu-btn{min-height:58px;font-size:16px;letter-spacing:.08em}
+.menu-btn:disabled{opacity:.45}
+.menu-note{margin-top:12px;color:rgba(255,194,223,.9);font-size:12px;text-align:center}
 .topbar{
   display:flex;gap:12px;align-items:center;justify-content:space-between;
   background: linear-gradient(180deg, rgba(255,79,184,.14), rgba(18,24,38,.35));
