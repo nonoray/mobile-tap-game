@@ -374,9 +374,28 @@
   }
 
   function drawBlock(x, y, color, alpha = 1) {
+    const px = x * BLOCK;
+    const py = y * BLOCK;
+
     ctx.globalAlpha = alpha;
+
+    // candy highlight
+    const g = ctx.createLinearGradient(px, py, px + BLOCK, py + BLOCK);
+    g.addColorStop(0, "rgba(255,255,255,.35)");
+    g.addColorStop(0.35, "rgba(255,255,255,.10)");
+    g.addColorStop(1, "rgba(0,0,0,.18)");
+
     ctx.fillStyle = color;
-    ctx.fillRect(x * BLOCK + 1, y * BLOCK + 1, BLOCK - 2, BLOCK - 2);
+    ctx.fillRect(px + 1, py + 1, BLOCK - 2, BLOCK - 2);
+
+    ctx.fillStyle = g;
+    ctx.fillRect(px + 1, py + 1, BLOCK - 2, BLOCK - 2);
+
+    // outline
+    ctx.strokeStyle = "rgba(255,255,255,.18)";
+    ctx.lineWidth = 1;
+    ctx.strokeRect(px + 1.5, py + 1.5, BLOCK - 3, BLOCK - 3);
+
     ctx.globalAlpha = 1;
   }
 
