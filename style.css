@@ -107,7 +107,7 @@ button{
   border:1px solid rgba(255,255,255,.16);
   background: linear-gradient(180deg, rgba(255,79,184,.42), rgba(58,16,48,.86));
   color:var(--fg);
-  border-radius:10px; /* square-ish */
+  border-radius:0px;
   padding:12px 14px;
   font-weight:900;
   box-shadow: 0 10px 24px rgba(255,79,184,.10);
@@ -173,7 +173,7 @@ button:focus-visible{outline: 3px solid rgba(255,79,184,.55); outline-offset: 2p
   width:46px;
   height:36px;
   padding:0;
-  border-radius:12px; /* square-ish */
+  border-radius:0px;
   font-weight:1000;
   letter-spacing:.08em;
   line-height:1;
@@ -260,7 +260,7 @@ canvas{
 .pad{display:grid;grid-template-columns: 1fr 1fr;gap:10px}
 .pad-left{justify-self:start}
 .pad-right{justify-self:end}
-.ctl{min-height:56px;font-size:18px;border-radius:12px}
+.ctl{min-height:56px;font-size:18px;border-radius:0px}
 .ctl.wide{
   grid-column: 1 / -1;
   min-height:62px;
