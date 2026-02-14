@@ -15,7 +15,7 @@
   --glow: rgba(255, 79, 184, .35);
 }
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%; overflow:hidden}
 .hidden{display:none !important}
 body{
   margin:0;
@@ -55,7 +55,7 @@ body::before{
   max-width:980px;
   margin:0 auto;
   padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
-  min-height: calc(var(--vh) * 100);
+  height: calc(var(--vh) * 100);
 }
 
 /* Menu */
@@ -131,12 +131,20 @@ button:active{transform: translateY(1px) scale(.99); filter:saturate(1.18)}
 button.small{padding:7px 10px;font-size:12px;letter-spacing:.06em}
 button.primary{background: linear-gradient(180deg, #ff7ad1, var(--accent));}
 button:focus-visible{outline: 3px solid rgba(255,79,184,.55); outline-offset: 2px;}
-.main{margin-top:12px;position:relative}
+.main{
+  margin-top:12px;
+  position:relative;
+  height: calc(100% - 12px);
+  display:flex;
+  flex-direction:column;
+}
 .game{
   display:grid;
   grid-template-columns: 1fr 220px;
   gap:12px;
   align-items:start;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Game Boy-ish shell */
@@ -239,8 +247,8 @@ canvas{
 #board{
   display:block;
   margin: 0 auto;
-  /* bigger playfield, tuned for phone */
-  height: min(56vh, 680px);
+  /* Fit without scrolling: compute from viewport minus HUD+controls */
+  height: min(calc(var(--vh) * 100 - 320px), 620px);
   width: auto;
   max-width: min(92vw, 360px);
   aspect-ratio: 1 / 2;
@@ -256,20 +264,21 @@ canvas{
 .help ul{margin:0;padding-left:18px;color:var(--muted);font-size:13px;line-height:1.45}
 .hint{margin-top:8px;color:rgba(234,240,255,.75);font-size:12px}
 .controls{
-  /* plain bottom controls (no sticky/fixed) to avoid Safari URL bar quirks */
+  /* bottom controls, sized to avoid scrolling */
   margin: 10px auto 0;
   width: min(92vw, 420px);
-  padding-bottom: calc(10px + env(safe-area-inset-bottom));
 
   display:grid;
   grid-template-columns: 1fr 1fr;
   gap:10px;
 
   padding: 10px;
-  border-radius: 18px;
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
   background: rgba(18,24,38,.55);
   border:1px solid rgba(255,255,255,.08);
   backdrop-filter: blur(10px);
+
+  flex: 0 0 auto;
 }
 .pad{display:grid;grid-template-columns: 1fr 1fr;gap:10px}
 .pad-left{justify-self:start}
