@@ -25,10 +25,8 @@
   const btnDown = $("btnDown");
   const btnDrop = $("btnDrop");
 
-  // prevent double-tap zoom on iOS buttons
-  for (const b of [btnLeft, btnRight, btnRot, btnDown, btnDrop, btnPause, btnResume, btnRestart]) {
-    b.addEventListener("touchstart", (e) => e.preventDefault(), { passive: false });
-  }
+  // NOTE: We avoid blanket `touchstart preventDefault` on buttons because it can
+  // swallow pointer/click events on some mobile browsers.
 
   // board config
   const COLS = 10;
@@ -417,33 +415,51 @@
   }, { passive: true });
 
   // input: touch buttons (hold repeat for left/right/down)
+  // iOS/Safari は PointerEvent 周りが怪しいことがあるので、touch/mouse の両対応で堅くする。
   function bindHold(btn, onTap, onHold) {
     let t = null;
     let r = null;
-    const start = () => {
+
+    const start = (e) => {
+      e?.preventDefault?.();
       onTap();
       // start repeating after a short delay
       t = setTimeout(() => {
         r = setInterval(() => onHold(), 60);
       }, 180);
     };
-    const stop = () => {
+    const stop = (e) => {
+      e?.preventDefault?.();
       if (t) clearTimeout(t);
       if (r) clearInterval(r);
       t = null; r = null;
     };
 
-    btn.addEventListener("pointerdown", (e) => { e.preventDefault(); btn.setPointerCapture?.(e.pointerId); start(); }, { passive: false });
-    btn.addEventListener("pointerup", stop, { passive: true });
-    btn.addEventListener("pointercancel", stop, { passive: true });
-    btn.addEventListener("pointerleave", stop, { passive: true });
+    // touch
+    btn.addEventListener("touchstart", start, { passive: false });
+    btn.addEventListener("touchend", stop, { passive: false });
+    btn.addEventListener("touchcancel", stop, { passive: false });
+
+    // mouse
+    btn.addEventListener("mousedown", start, { passive: false });
+    btn.addEventListener("mouseup", stop, { passive: false });
+    btn.addEventListener("mouseleave", stop, { passive: false });
+
+    // fallback click
+    btn.addEventListener("click", (e) => { e.preventDefault(); onTap(); }, { passive: false });
+  }
+
+  function bindTap(btn, fn) {
+    btn.addEventListener("touchstart", (e) => { e.preventDefault(); fn(); }, { passive: false });
+    btn.addEventListener("mousedown", (e) => { e.preventDefault(); fn(); }, { passive: false });
+    btn.addEventListener("click", (e) => { e.preventDefault(); fn(); }, { passive: false });
   }
 
   bindHold(btnLeft,  () => move(-1), () => move(-1));
   bindHold(btnRight, () => move(1),  () => move(1));
   bindHold(btnDown,  () => softDrop(), () => softDrop());
-  btnRot.addEventListener("pointerdown", (e) => { e.preventDefault(); rotate(); }, { passive: false });
-  btnDrop.addEventListener("pointerdown", (e) => { e.preventDefault(); hardDrop(); }, { passive: false });
+  bindTap(btnRot, rotate);
+  bindTap(btnDrop, hardDrop);
 
   btnPause.addEventListener("click", () => {
     // if it shows Resume, it means paused
