@@ -73,8 +73,13 @@ body::before{
   box-shadow: 0 12px 30px rgba(255,79,184,.10);
 }
 .title{font-weight:800;letter-spacing:.3px}
-.stats{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:14px}
-.top-actions{display:flex;gap:10px;align-items:center}
+.top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+
+/* stats: compact + readable */
+.stats-row{display:flex;gap:10px;align-items:center;justify-content:center;flex:1;min-width:160px}
+.stat{padding:6px 10px;border-radius:14px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);text-align:center;min-width:72px}
+.stat .k{font-size:11px;letter-spacing:.12em;color:rgba(255,194,223,.95)}
+.stat .v{font-size:16px;font-weight:900;line-height:1.1}
 button{
   border:1px solid rgba(255,255,255,.14);
   background: linear-gradient(180deg, rgba(255,79,184,.38), rgba(58,16,48,.85));
@@ -150,11 +155,13 @@ button.primary{background: linear-gradient(180deg, #ff7ad1, var(--accent));}
 canvas{
   width:100%;
   height:auto;
-  background: rgba(0,0,0,.22);
-  border:1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.28);
+  border:1px solid rgba(255,255,255,.16);
   border-radius:14px;
   touch-action:none;
-  box-shadow: 0 0 0 1px rgba(255,79,184,.10) inset;
+  box-shadow:
+    0 0 0 1px rgba(255,79,184,.10) inset,
+    0 14px 40px rgba(0,0,0,.25);
 }
 
 /* flashy effects */
@@ -177,9 +184,10 @@ canvas{
 #board{
   display:block;
   margin: 0 auto;
-  height: min(46vh, 520px);
+  /* make playfield bigger, still handheld-like */
+  height: min(52vh, 620px);
   width: auto;
-  max-width: min(86vw, 280px);
+  max-width: min(90vw, 330px);
   aspect-ratio: 1 / 2;
 }
 .side{display:flex;flex-direction:column;gap:12px}
