@@ -1,5 +1,13 @@
 /* Mini Tetris (mobile-first) */
 (() => {
+  // iOS Safari viewport height fix (avoids toolbar "jump" / overlap)
+  const setVh = () => {
+    const vh = window.innerHeight * 0.01;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+  };
+  setVh();
+  window.addEventListener('resize', setVh, { passive: true });
+
   const $ = (id) => document.getElementById(id);
 
   const canvas = $("board");

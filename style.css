@@ -1,4 +1,7 @@
 :root{
+  /* Mobile viewport helper (set by JS) */
+  --vh: 1vh;
+
   /* Pink / cute theme */
   --bg:#120616;
   --fg:#fff4fb;
@@ -48,10 +51,15 @@ body::before{
 @media (prefers-reduced-motion: reduce){
   *{animation:none!important; transition:none!important; scroll-behavior:auto!important;}
 }
-#app{max-width:980px;margin:0 auto;padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));}
+#app{
+  max-width:980px;
+  margin:0 auto;
+  padding: max(12px, env(safe-area-inset-top)) 12px max(12px, env(safe-area-inset-bottom));
+  min-height: calc(var(--vh) * 100);
+}
 
 /* Menu */
-.menu{min-height: calc(100vh - 24px); display:flex; align-items:center; justify-content:center;}
+.menu{min-height: calc(var(--vh) * 100 - 24px); display:flex; align-items:center; justify-content:center;}
 .menu-card{
   width:min(520px, 92vw);
   background: rgba(255,255,255,.08);
@@ -109,9 +117,14 @@ button{
   color:var(--fg);
   border-radius:0px;
   padding:12px 14px;
+  min-height:44px;
+  min-width:44px; /* mobile touch target */
   font-weight:900;
   box-shadow: 0 10px 24px rgba(255,79,184,.10);
   transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
+  -webkit-tap-highlight-color: transparent;
+  user-select:none;
+  touch-action: manipulation;
 }
 button:hover{filter:saturate(1.10)}
 button:active{transform: translateY(1px) scale(.99); filter:saturate(1.18)}
@@ -246,6 +259,7 @@ canvas{
   /* plain bottom controls (no sticky/fixed) to avoid Safari URL bar quirks */
   margin: 10px auto 0;
   width: min(92vw, 420px);
+  padding-bottom: calc(10px + env(safe-area-inset-bottom));
 
   display:grid;
   grid-template-columns: 1fr 1fr;
