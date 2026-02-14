@@ -8,6 +8,30 @@
   setVh();
   window.addEventListener('resize', setVh, { passive: true });
 
+  // iOS Safari quirks: prevent pinch-zoom / double-tap zoom during gameplay
+  const shouldBlockGesture = (e) => {
+    const t = e.target;
+    if (!t) return false;
+    // Block on the game canvas + touch controls + overlay buttons
+    return !!(t.closest?.('.controls') || t.closest?.('.screen') || t.closest?.('.overlay') || t === document.getElementById('board'));
+  };
+
+  // gesture events exist on iOS Safari
+  for (const evt of ['gesturestart', 'gesturechange', 'gestureend']) {
+    window.addEventListener(evt, (e) => {
+      if (shouldBlockGesture(e)) e.preventDefault();
+    }, { passive: false });
+  }
+
+  // extra guard: stop rubber-band scroll when swiping on the game area
+  document.addEventListener('touchmove', (e) => {
+    if (shouldBlockGesture(e)) e.preventDefault();
+  }, { passive: false });
+
+  document.addEventListener('dblclick', (e) => {
+    if (shouldBlockGesture(e)) e.preventDefault();
+  }, { passive: false });
+
   const $ = (id) => document.getElementById(id);
 
   const canvas = $("board");
