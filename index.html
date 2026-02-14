@@ -32,13 +32,11 @@
       <div class="title">Mini<br>Tetris</div>
       <div class="stats-row" aria-label="stats">
         <div class="stat"><div class="k">Score</div><div class="v" id="score">0</div></div>
-        <div class="stat"><div class="k">Lines</div><div class="v" id="lines">0</div></div>
-        <div class="stat"><div class="k">Level</div><div class="v" id="level">1</div></div>
+        <div class="stat mini"><div class="k">Lines</div><div class="v" id="lines">0</div></div>
       </div>
       <div class="top-actions">
         <button id="btnSound" class="small" aria-label="toggle sound">Sound: OFF</button>
         <button id="btnMenu" class="small" aria-label="back to menu">Menu</button>
-        <button id="btnPause" class="small">Pause</button>
       </div>
     </header>
 
@@ -47,6 +45,7 @@
         <div class="gb">
           <div class="gb-header">DOT MATRIX WITH STEREO SOUND</div>
           <div class="screen">
+            <button id="btnPause" class="pause-fab" aria-label="pause">Ⅱ</button>
             <canvas id="board" width="300" height="600" aria-label="tetris board"></canvas>
           </div>
           <div class="gb-footer">MINI TETRIS</div>
@@ -70,10 +69,14 @@
       </section>
 
       <section class="controls" aria-label="touch controls">
-        <button class="ctl" id="btnLeft"  aria-label="move left">◀</button>
-        <button class="ctl" id="btnRight" aria-label="move right">▶</button>
-        <button class="ctl" id="btnRot"   aria-label="rotate">⟳</button>
-        <button class="ctl" id="btnDown"  aria-label="soft drop">▼</button>
+        <div class="pad pad-left" aria-label="move pad">
+          <button class="ctl" id="btnLeft"  aria-label="move left">◀</button>
+          <button class="ctl" id="btnRight" aria-label="move right">▶</button>
+        </div>
+        <div class="pad pad-right" aria-label="action pad">
+          <button class="ctl" id="btnRot"   aria-label="rotate">⟳</button>
+          <button class="ctl" id="btnDown"  aria-label="soft drop">▼</button>
+        </div>
         <button class="ctl wide" id="btnDrop" aria-label="hard drop">DROP</button>
       </section>
 
