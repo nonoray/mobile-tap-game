@@ -524,8 +524,11 @@
       }
     }
 
-    drawBoard();
-    drawNext();
+    // If not initialized yet, skip drawing
+    if (current && next) {
+      drawBoard();
+      drawNext();
+    }
     requestAnimationFrame(update);
   }
 
@@ -639,6 +642,9 @@
 
   // start
   setSound(false);
+  // init game state once so render loop doesn't crash even while menu is shown
+  restart();
+  paused = true;
   showMenu();
   requestAnimationFrame(update);
 })();
