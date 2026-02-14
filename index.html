@@ -19,7 +19,7 @@
         <div class="menu-sub">遊びたいゲームを選んでね</div>
         <div class="menu-grid">
           <button id="btnMenuTetris" class="menu-btn primary">TETRIS</button>
-          <button class="menu-btn" disabled>COMING SOON</button>
+          <button id="btnMenuInvaders" class="menu-btn">INVADERS</button>
           <button class="menu-btn" disabled>COMING SOON</button>
           <button class="menu-btn" disabled>COMING SOON</button>
         </div>
@@ -29,10 +29,10 @@
 
     <div id="gameScreen" class="hidden">
     <header class="topbar">
-      <div class="title">Mini Tetris</div>
+      <div class="title" id="gameTitle">Mini Tetris</div>
       <div class="stats-inline" aria-label="stats">
         <span class="pill">Score <b id="score">0</b></span>
-        <span class="pill">Lines <b id="lines">0</b></span>
+        <span class="pill"><span id="stat2Label">Lines</span> <b id="stat2">0</b></span>
       </div>
       <div class="top-actions">
         <button id="btnSound" class="small" aria-label="toggle sound">Sound</button>
@@ -46,11 +46,11 @@
           <div class="gb-header">DOT MATRIX WITH STEREO SOUND</div>
           <div class="screen">
             <button id="btnPause" class="pause-fab" aria-label="pause">Ⅱ</button>
-            <canvas id="board" width="300" height="600" aria-label="tetris board"></canvas>
+            <canvas id="board" width="300" height="600" aria-label="game canvas"></canvas>
           </div>
-          <div class="gb-footer">MINI TETRIS</div>
+          <div class="gb-footer" id="gameFooter">MINI TETRIS</div>
         </div>
-        <div class="side">
+        <div class="side" id="tetrisSide">
           <div class="panel">
             <div class="label">NEXT</div>
             <canvas id="next" width="120" height="120" aria-label="next piece"></canvas>
