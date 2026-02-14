@@ -623,9 +623,8 @@
 
     let aliens = [];  // {x,y,w,h,alive}
     let axDir = 1;
-    let axSpeed = 24; // px/sec (actual speed is time-ramped)
+    let axSpeed = 18; // px/sec (constant speed)
     let descend = 10;
-    let elapsed = 0; // seconds since game start
     let fireCooldown = 0;
     let invaderShotTimer = 0;
 
@@ -670,7 +669,6 @@
       player.x = W / 2;
       fireCooldown = 0;
       invaderShotTimer = 0;
-      elapsed = 0;
       resetAliens();
       updateHUD();
       hideOverlay();
@@ -707,12 +705,10 @@
     function step(dt) {
       if (paused || gameOver) return;
 
-      elapsed += dt;
       fireCooldown = Math.max(0, fireCooldown - dt);
 
-      // time-based difficulty ramp:
-      // start gentle, then slowly speed up over time (caps to avoid "too fast")
-      const speedNow = Math.min(90, 20 + elapsed * 1.4); // px/sec
+      // constant (slower) approach speed
+      const speedNow = 18; // px/sec
 
       // alien movement bounds
       let minX = Infinity, maxX = -Infinity, maxY = -Infinity;
@@ -793,7 +789,7 @@
       if (!anyAlive()) {
         beep({ f: 990, t: 0.12, type: 'square', gain: 0.18 });
         resetAliens();
-        // next wave: keep elapsed (time ramp) but give a brief "breathing" moment
+        // next wave: brief "breathing" moment
         invaderShotTimer = 0.40;
       }
     }
