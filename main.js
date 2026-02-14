@@ -15,6 +15,7 @@
   const overlayTitle = $("overlayTitle");
   const overlayText = $("overlayText");
   const btnPause = $("btnPause");
+  const btnSound = $("btnSound");
   const btnResume = $("btnResume");
   const btnRestart = $("btnRestart");
 
@@ -111,6 +112,96 @@
   let paused = false;
   let gameOver = false;
 
+  // --- Audio (WebAudio; no external files) ---
+  let audioCtx = null;
+  let master = null;
+  let bgGain = null;
+  let sfxGain = null;
+  let bgTimer = null;
+  let soundOn = false;
+
+  function ensureAudio() {
+    if (audioCtx) return;
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (!AC) return;
+    audioCtx = new AC();
+    master = audioCtx.createGain();
+    master.gain.value = 0.7;
+    master.connect(audioCtx.destination);
+
+    bgGain = audioCtx.createGain();
+    bgGain.gain.value = 0.18;
+    bgGain.connect(master);
+
+    sfxGain = audioCtx.createGain();
+    sfxGain.gain.value = 0.35;
+    sfxGain.connect(master);
+  }
+
+  function setSound(on) {
+    ensureAudio();
+    soundOn = !!on;
+    if (!audioCtx) {
+      btnSound.textContent = "Sound: N/A";
+      btnSound.disabled = true;
+      return;
+    }
+    btnSound.textContent = soundOn ? "Sound: ON" : "Sound: OFF";
+    if (soundOn) {
+      audioCtx.resume?.();
+      startBGM();
+    } else {
+      stopBGM();
+    }
+  }
+
+  function beep({ f = 440, t = 0.06, type = 'square', gain = 0.25, to = 'sfx' } = {}) {
+    if (!soundOn) return;
+    ensureAudio();
+    if (!audioCtx) return;
+    const now = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(f, now);
+    g.gain.setValueAtTime(0.0001, now);
+    g.gain.exponentialRampToValueAtTime(gain, now + 0.01);
+    g.gain.exponentialRampToValueAtTime(0.0001, now + t);
+    osc.connect(g);
+    g.connect(to === 'bg' ? bgGain : sfxGain);
+    osc.start(now);
+    osc.stop(now + t + 0.02);
+  }
+
+  function startBGM() {
+    if (!soundOn || !audioCtx) return;
+    if (bgTimer) return;
+
+    // simple chiptune-ish loop (I–V–vi–IV feel)
+    const bpm = 140;
+    const step = 60 / bpm / 2; // 8th notes
+    const seq = [
+      659, 587, 523, 587,
+      659, 587, 494, 523,
+      587, 523, 440, 494,
+      523, 494, 440, 392,
+    ];
+    let i = 0;
+    const tick = () => {
+      if (!soundOn || paused || gameOver) return;
+      const f = seq[i++ % seq.length];
+      // melody + a quiet bass blip
+      beep({ f, t: step * 0.9, type: 'square', gain: 0.09, to: 'bg' });
+      beep({ f: f / 2, t: step * 0.9, type: 'triangle', gain: 0.05, to: 'bg' });
+    };
+    bgTimer = setInterval(tick, step * 1000);
+  }
+
+  function stopBGM() {
+    if (bgTimer) clearInterval(bgTimer);
+    bgTimer = null;
+  }
+
   let score = 0;
   let lines = 0;
   let level = 1;
@@ -178,6 +269,11 @@
       // level up every 10 lines
       const newLevel = Math.max(1, (lines / 10 | 0) + 1);
       if (newLevel !== level) level = newLevel;
+
+      // SFX
+      const sfxMap = {1: 660, 2: 740, 3: 880, 4: 990};
+      beep({ f: sfxMap[cleared] || 880, t: 0.10, type: 'square', gain: 0.22 });
+
       updateHUD();
     }
   }
@@ -198,6 +294,7 @@
     let y = current.y;
     while (!collide(current.mat, current.x, y + 1)) y++;
     current.y = y;
+    beep({ f: 220, t: 0.07, type: 'square', gain: 0.28 });
     lockPiece();
   }
 
@@ -206,6 +303,8 @@
     if (!collide(current.mat, current.x, current.y + 1)) {
       current.y++;
       score += 1;
+      // subtle tick
+      beep({ f: 330, t: 0.03, type: 'triangle', gain: 0.08 });
       updateHUD();
     } else {
       lockPiece();
@@ -216,7 +315,10 @@
   function move(dx) {
     if (paused || gameOver) return;
     const nx = current.x + dx;
-    if (!collide(current.mat, nx, current.y)) current.x = nx;
+    if (!collide(current.mat, nx, current.y)) {
+      current.x = nx;
+      beep({ f: 520, t: 0.02, type: 'square', gain: 0.06 });
+    }
   }
 
   function rotate() {
@@ -228,6 +330,7 @@
       if (!collide(rotated, current.x + k, current.y)) {
         current.mat = rotated;
         current.x += k;
+        beep({ f: 880, t: 0.04, type: 'square', gain: 0.12 });
         return;
       }
     }
@@ -356,13 +459,22 @@
     if (gameOver) return;
     paused = (force === undefined) ? !paused : !!force;
     btnPause.textContent = paused ? "Resume" : "Pause";
-    if (paused) showOverlay("Paused", "Tap Resume to continue.");
-    else hideOverlay();
+    if (paused) {
+      stopBGM();
+      showOverlay("Paused", "Tap Resume to continue.");
+    } else {
+      startBGM();
+      hideOverlay();
+    }
   }
 
   function endGame() {
     gameOver = true;
     paused = true;
+    stopBGM();
+    // game over sfx
+    beep({ f: 196, t: 0.18, type: 'sawtooth', gain: 0.22 });
+    setTimeout(() => beep({ f: 110, t: 0.22, type: 'sawtooth', gain: 0.18 }), 120);
     btnPause.textContent = "Pause";
     showOverlay("Game Over", `Score ${score} / Lines ${lines}`);
   }
@@ -380,6 +492,7 @@
     spawn();
     hideOverlay();
     btnPause.textContent = "Pause";
+    if (soundOn) startBGM();
   }
 
   function update(time = 0) {
@@ -468,6 +581,19 @@
   bindTap(btnRot, rotate);
   bindTap(btnDrop, hardDrop);
 
+  function primeAudioFromGesture() {
+    // iOS requires a user gesture to start audio
+    ensureAudio();
+    if (audioCtx) audioCtx.resume?.();
+  }
+
+  // any first interaction can prime audio
+  window.addEventListener('touchstart', primeAudioFromGesture, { passive: true, once: true });
+  window.addEventListener('mousedown', primeAudioFromGesture, { passive: true, once: true });
+  window.addEventListener('keydown', primeAudioFromGesture, { passive: true, once: true });
+
+  btnSound.addEventListener('click', () => setSound(!soundOn));
+
   btnPause.addEventListener("click", () => {
     // if it shows Resume, it means paused
     if (paused) pauseToggle(false);
@@ -478,5 +604,6 @@
 
   // start
   restart();
+  setSound(false);
   requestAnimationFrame(update);
 })();

@@ -28,6 +28,7 @@ body{
 }
 .title{font-weight:800;letter-spacing:.3px}
 .stats{display:flex;gap:12px;flex-wrap:wrap;color:var(--muted);font-size:14px}
+.top-actions{display:flex;gap:10px;align-items:center}
 button{
   border:1px solid rgba(255,255,255,.08);
   background: linear-gradient(180deg, var(--btn2), var(--btn));
