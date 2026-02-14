@@ -9,7 +9,7 @@
 
   const scoreEl = $("score");
   const linesEl = $("lines");
-  const levelEl = $("level");
+  const levelEl = $("level"); // may be null if HUD hides level
 
   const overlay = $("overlay");
   const overlayTitle = $("overlayTitle");
@@ -474,9 +474,9 @@
   }
 
   function updateHUD() {
-    scoreEl.textContent = String(score);
-    linesEl.textContent = String(lines);
-    levelEl.textContent = String(level);
+    if (scoreEl) scoreEl.textContent = String(score);
+    if (linesEl) linesEl.textContent = String(lines);
+    if (levelEl) levelEl.textContent = String(level);
   }
 
   function showOverlay(title, text) {
