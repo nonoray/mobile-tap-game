@@ -638,15 +638,21 @@
     }
 
     function collide(mat, ox, oy) {
-      let hit = false;
-      forEachFilledCell(mat, (x, y) => {
-        if (hit) return;
-        const bx = x + ox;
-        const by = y + oy;
-        if (bx < 0 || bx >= COLS || by >= ROWS) { hit = true; return; }
-        if (by >= 0 && board[by][bx]) { hit = true; return; }
-      });
-      if (hit) return true;
+      // Hot-path: avoid closures/flags and keep the collision rules explicit.
+      // Rules (unchanged):
+      // - Left/right/out-the-bottom => collision
+      // - Above the top (by < 0) is allowed
+      // - Overlapping an occupied cell (by >= 0) => collision
+      for (let y = 0; y < mat.length; y++) {
+        const row = mat[y];
+        for (let x = 0; x < row.length; x++) {
+          if (!row[x]) continue;
+          const bx = x + ox;
+          const by = y + oy;
+          if (bx < 0 || bx >= COLS || by >= ROWS) return true;
+          if (by >= 0 && board[by][bx]) return true;
+        }
+      }
       return false;
     }
 
