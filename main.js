@@ -46,6 +46,7 @@
 
   const scoreEl = $("score");
   const stat2El = $("stat2");
+  const levelEl = $("level");
   const bestEl = $("best");
   const stat2LabelEl = $("stat2Label");
   const titleEl = $("gameTitle");
@@ -724,6 +725,7 @@
     function updateHUD() {
       if (scoreEl) scoreEl.textContent = String(score);
       if (stat2El) stat2El.textContent = String(lines);
+      if (levelEl) levelEl.textContent = String(level);
     }
 
     function refillBag() {
