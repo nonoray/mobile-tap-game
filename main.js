@@ -212,13 +212,24 @@
   let paused = false;
   let gameOver = false;
 
+  // Accessibility: keep focus inside the modal overlay and restore it on close.
+  let lastFocusEl = null;
+
   function showOverlay(title, text) {
     overlayTitle.textContent = title;
     overlayText.textContent = text;
+
+    lastFocusEl = document.activeElement;
     overlay.classList.remove("hidden");
+
+    // Move focus to the primary action for keyboard / assistive tech users.
+    // (No-op on most mobile browsers, but harmless.)
+    try { btnResume?.focus?.({ preventScroll: true }); } catch { btnResume?.focus?.(); }
   }
   function hideOverlay() {
     overlay.classList.add("hidden");
+    try { lastFocusEl?.focus?.({ preventScroll: true }); } catch { lastFocusEl?.focus?.(); }
+    lastFocusEl = null;
   }
 
   function pauseToggle(force) {
