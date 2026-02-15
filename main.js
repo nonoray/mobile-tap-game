@@ -843,10 +843,14 @@
       return paused || gameOver;
     }
 
-    function ghostY() {
-      let y = current.y;
-      while (!collide(current.mat, current.x, y + 1)) y++;
+    function landingY(mat, x, yStart) {
+      let y = yStart;
+      while (!collide(mat, x, y + 1)) y++;
       return y;
+    }
+
+    function ghostY() {
+      return landingY(current.mat, current.x, current.y);
     }
 
     function drawBlock(x, y, color, alpha = 1) {
@@ -979,9 +983,7 @@
 
     function hardDrop() {
       if (isInputLocked()) return;
-      let y = current.y;
-      while (!collide(current.mat, current.x, y + 1)) y++;
-      current.y = y;
+      current.y = landingY(current.mat, current.x, current.y);
       beep({ f: 220, t: 0.07, type: 'square', gain: 0.28 });
       lockPiece();
     }
