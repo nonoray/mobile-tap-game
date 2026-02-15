@@ -677,6 +677,14 @@
     function drawBoard() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Subtle alternating row shading: improves height/stack readability at a glance
+      // without adding decorative noise.
+      for (let y = 0; y < ROWS; y++) {
+        if (y % 2 !== 0) continue;
+        ctx.fillStyle = "rgba(255,255,255,.015)";
+        ctx.fillRect(0, y * BLOCK, COLS * BLOCK, BLOCK);
+      }
+
       ctx.strokeStyle = "rgba(255,255,255,.04)";
       for (let x = 0; x <= COLS; x++) {
         ctx.beginPath();
