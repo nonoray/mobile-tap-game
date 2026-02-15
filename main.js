@@ -262,7 +262,18 @@
   // --- Game mode switching ---
   let mode = 'menu';
 
-  function showMenu() {
+  function setRoute(hash, { replace = false } = {}) {
+    const urlNoHash = window.location.pathname + window.location.search;
+    const nextHash = (!hash || hash === '#') ? '' : (hash.startsWith('#') ? hash : ('#' + hash));
+
+    // Avoid needless history entries
+    if (window.location.hash === nextHash) return;
+
+    if (replace) history.replaceState(null, '', urlNoHash + nextHash);
+    else window.location.hash = nextHash;
+  }
+
+  function showMenu({ route = true } = {}) {
     mode = 'menu';
     paused = true;
     gameOver = false;
@@ -270,11 +281,22 @@
     hideOverlay();
     menuScreen.classList.remove('hidden');
     gameScreen.classList.add('hidden');
+
+    // Menu is the root route (no hash). Replace so the hardware Back button
+    // from a game returns here cleanly without extra steps.
+    if (route) setRoute('', { replace: true });
   }
 
   function showGame() {
     menuScreen.classList.add('hidden');
     gameScreen.classList.remove('hidden');
+  }
+
+  function routeFromHash() {
+    const h = (window.location.hash || '').replace(/^#/, '');
+    if (h === 'tetris') startTetris({ route: false });
+    else if (h === 'invaders') startInvaders({ route: false });
+    else showMenu({ route: false });
   }
 
   // =========================
@@ -967,22 +989,24 @@
     return mode === 'invaders' ? invaders : tetris;
   }
 
-  function startTetris() {
+  function startTetris({ route = true } = {}) {
     mode = 'tetris';
     showGame();
     tetris.hud();
     if (tetrisSide) tetrisSide.classList.remove('hidden');
     tetris.bindControls();
     tetris.restart();
+    if (route) setRoute('tetris');
   }
 
-  function startInvaders() {
+  function startInvaders({ route = true } = {}) {
     mode = 'invaders';
     showGame();
     invaders.hud();
     if (tetrisSide) tetrisSide.classList.add('hidden');
     invaders.bindControls();
     invaders.restart();
+    if (route) setRoute('invaders');
   }
 
   btnMenuTetris.addEventListener('click', () => startTetris());
@@ -1031,6 +1055,10 @@
   // start
   setSound(readSoundPref(), { persist: false });
   paused = true;
-  showMenu();
+
+  // Support deep links + mobile hardware Back button
+  window.addEventListener('hashchange', routeFromHash);
+  routeFromHash();
+
   requestAnimationFrame(loop);
 })();
