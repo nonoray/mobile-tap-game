@@ -562,8 +562,12 @@
 
       if (cleared) {
         lines += cleared;
-        const base = [0, 100, 300, 500, 800][cleared] || (cleared * 250);
+
+        // Tunables (centralized so future score tweaks are less error-prone)
+        const LINE_CLEAR_BASE = [0, 100, 300, 500, 800];
+        const base = LINE_CLEAR_BASE[cleared] || (cleared * 250);
         score += base * level;
+
         const newLevel = Math.max(1, (lines / 10 | 0) + 1);
         if (newLevel !== level) level = newLevel;
 
@@ -609,8 +613,15 @@
       spawn();
     }
 
+    // Tunables: fall-speed curve (keep in one place for future tuning)
+    const FALL_SPEED = {
+      minMs: 80,
+      baseMs: 650,
+      perLevelMs: 45,
+    };
+
     function getDropInterval() {
-      return Math.max(80, 650 - (level - 1) * 45);
+      return Math.max(FALL_SPEED.minMs, FALL_SPEED.baseMs - (level - 1) * FALL_SPEED.perLevelMs);
     }
 
     function ghostY() {
