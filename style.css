@@ -15,9 +15,14 @@
   --glow: rgba(255, 79, 184, .35);
 }
 *{box-sizing:border-box}
-html,body{height:100%; overflow:hidden}
+html,body{height:100%; overflow:hidden; touch-action:none}
 .hidden{display:none !important}
-body{
+body{ 
+  /* Global: reduce accidental browser gestures/selection while practicing */
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  user-select:none;
+
   margin:0;
   font-family: "Zen Kaku Gothic New", ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Hiragino Kaku Gothic ProN", "Noto Sans JP", sans-serif;
   background:
