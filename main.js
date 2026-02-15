@@ -918,11 +918,8 @@
     }
 
     function bindControls() {
-      btnLeft.disabled = false;
-      btnRight.disabled = false;
-      btnRot.disabled = false;
-      btnDown.disabled = false;
-      btnDrop.disabled = false;
+      // Keep enabled-state logic centralized (also sets aria-disabled + tabIndex).
+      setTouchControlsEnabled(true);
 
       btnRot.textContent = "⟳";
       btnDown.textContent = "▼";

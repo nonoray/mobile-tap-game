@@ -24,3 +24,4 @@
 - [UI] ポーズ/サウンド/Resume/Restart もタッチ用の bindTap() 経由に統一（touchstart優先 + synthetic click抑止 + haptics）。モバイルでの二重トグルや反応遅れによる誤爆を減らす。
 - [UI] [A11y] ポーズ/ゲームオーバーのモーダル表示中はタッチ操作ボタンを disabled + tab停止にして、背面操作の誤爆と「バイブだけ鳴る」混乱を防止。
 - [Visual] NEXT（次のピース）表示にも盤面と同じ「グロス + 輪郭線」を適用して、色/形を一瞬で判別しやすく（特に明るいI/Oの視認性を改善）。
+- [Refactor] タッチ操作ボタンの有効化を bindControls() 内でも setTouchControlsEnabled() 経由に統一（aria-disabled/tabIndex も一緒に整合）。挙動は維持。
