@@ -814,8 +814,29 @@
 
       for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
         if (!mat[y][x]) continue;
-        nextCtx.fillStyle = COLORS[next.type];
-        nextCtx.fillRect((ox + x) * size + 1, (oy + y) * size + 1, size - 2, size - 2);
+        const px = (ox + x) * size;
+        const py = (oy + y) * size;
+
+        // Match the main board block treatment (gloss + edge contrast)
+        // so NEXT is instantly readable (esp. on light pieces like O/I).
+        const color = COLORS[next.type];
+        const g = nextCtx.createLinearGradient(px, py, px + size, py + size);
+        g.addColorStop(0, "rgba(255,255,255,.32)");
+        g.addColorStop(0.35, "rgba(255,255,255,.10)");
+        g.addColorStop(1, "rgba(0,0,0,.18)");
+
+        nextCtx.fillStyle = color;
+        nextCtx.fillRect(px + 1, py + 1, size - 2, size - 2);
+        nextCtx.fillStyle = g;
+        nextCtx.fillRect(px + 1, py + 1, size - 2, size - 2);
+
+        nextCtx.setLineDash([]);
+        nextCtx.lineWidth = 2;
+        nextCtx.strokeStyle = "rgba(0,0,0,.28)";
+        nextCtx.strokeRect(px + 1.5, py + 1.5, size - 3, size - 3);
+        nextCtx.lineWidth = 1;
+        nextCtx.strokeStyle = "rgba(255,255,255,.20)";
+        nextCtx.strokeRect(px + 2.5, py + 2.5, size - 5, size - 5);
       }
     }
 
