@@ -487,6 +487,11 @@
       L: [[0,0,1],[1,1,1],[0,0,0]],
     };
 
+    // Tunables/constants (kept near piece defs so future tweaks don't get scattered).
+    const LINE_CLEAR_BASE = Object.freeze([0, 100, 300, 500, 800]);
+    const LINE_CLEAR_SFX = Object.freeze({ 1: 660, 2: 740, 3: 880, 4: 990 });
+    const ROTATION_KICKS = Object.freeze([0, -1, 1, -2, 2]);
+
     function cloneMatrix(m) { return m.map(r => r.slice()); }
 
     function rotateCW(mat) {
@@ -563,16 +568,13 @@
       if (cleared) {
         lines += cleared;
 
-        // Tunables (centralized so future score tweaks are less error-prone)
-        const LINE_CLEAR_BASE = [0, 100, 300, 500, 800];
         const base = LINE_CLEAR_BASE[cleared] || (cleared * 250);
         score += base * level;
 
         const newLevel = Math.max(1, (lines / 10 | 0) + 1);
         if (newLevel !== level) level = newLevel;
 
-        const sfxMap = {1: 660, 2: 740, 3: 880, 4: 990};
-        beep({ f: sfxMap[cleared] || 880, t: 0.10, type: 'square', gain: 0.22 });
+        beep({ f: LINE_CLEAR_SFX[cleared] || 880, t: 0.10, type: 'square', gain: 0.22 });
 
         canvas.classList.remove('flash');
         void canvas.offsetWidth;
@@ -764,8 +766,7 @@
     function rotate() {
       if (paused || gameOver) return;
       const rotated = rotateCW(current.mat);
-      const kicks = [0, -1, 1, -2, 2];
-      for (const k of kicks) {
+      for (const k of ROTATION_KICKS) {
         if (!collide(rotated, current.x + k, current.y)) {
           current.mat = rotated;
           current.x += k;
