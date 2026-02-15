@@ -285,6 +285,42 @@
     lastFocusEl = null;
   }
 
+  // A11y: basic focus trap inside the overlay dialog (Tab cycles within).
+  // Keeps keyboard users from tabbing to controls behind the modal.
+  window.addEventListener('keydown', (e) => {
+    if (e.key !== 'Tab') return;
+    if (overlay.classList.contains('hidden')) return;
+
+    const focusables = Array.from(
+      overlay.querySelectorAll('button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')
+    ).filter((el) => (el.offsetParent !== null) || el === document.activeElement);
+
+    if (!focusables.length) return;
+
+    const first = focusables[0];
+    const last = focusables[focusables.length - 1];
+    const active = document.activeElement;
+
+    // If focus escaped somehow, snap it back in.
+    if (!overlay.contains(active)) {
+      e.preventDefault();
+      first.focus?.();
+      return;
+    }
+
+    if (e.shiftKey) {
+      if (active === first) {
+        e.preventDefault();
+        last.focus?.();
+      }
+    } else {
+      if (active === last) {
+        e.preventDefault();
+        first.focus?.();
+      }
+    }
+  }, { passive: false });
+
   function showHintOnce(storageKey, { title, text } = {}) {
     let seen = false;
     try { seen = localStorage.getItem(storageKey) === '1'; } catch {}
@@ -852,11 +888,6 @@
       showSide: () => { if (tetrisSide) tetrisSide.classList.remove('hidden'); if (nextCanvas) nextCanvas.closest('.panel')?.classList.remove('hidden'); }
     };
   })();
-
-  // =========================
-  // INVADERS
-  // =========================
-
   const invaders = (() => {
     // logical units based on canvas px
     const W = canvas.width;
