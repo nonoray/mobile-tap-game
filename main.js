@@ -1189,6 +1189,16 @@
   });
   btnResume.addEventListener("click", () => pauseToggle(false));
 
+  // Mobile UX: allow tapping the dimmed backdrop to resume (when it's a normal pause).
+  // (Avoids accidental resumes by requiring the click target to be the overlay itself, not the card.)
+  overlay.addEventListener('click', (e) => {
+    if (e.target !== overlay) return;
+    if (mode === 'menu') return;
+    if (!paused || gameOver) return;
+    if ((overlayTitle?.textContent || '') !== 'Paused') return;
+    pauseToggle(false);
+  }, { passive: true });
+
   btnRestart.addEventListener("click", () => {
     if (mode === 'tetris') tetris.restart();
     else if (mode === 'invaders') invaders.restart();
