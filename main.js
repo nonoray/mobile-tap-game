@@ -356,6 +356,15 @@
   const nowMs = () => (globalThis.performance?.now ? globalThis.performance.now() : Date.now());
   const CLICK_SUPPRESS_MS = 450;
 
+  // Micro-haptics: adds a subtle confirmation pulse on tap.
+  // (Helps reduce over-tapping / uncertainty on mobile. Ignored on unsupported devices.)
+  function hapticTap(ms = 8) {
+    try {
+      if (document.hidden) return;
+      navigator.vibrate?.(ms);
+    } catch {}
+  }
+
   function bindHold(btn, onTap, onHold) {
     let t = null;
     let r = null;
@@ -369,6 +378,7 @@
       suppressClickUntil = nowMs() + CLICK_SUPPRESS_MS;
 
       onTap();
+      hapticTap(8);
       t = setTimeout(() => { r = setInterval(() => onHold(), 60); }, 180);
     };
     const stop = (e) => {
@@ -402,6 +412,7 @@
       e?.preventDefault?.();
       suppressClickUntil = nowMs() + CLICK_SUPPRESS_MS;
       fn();
+      hapticTap(8);
     };
 
     btn.addEventListener("touchstart", start, { passive: false });
