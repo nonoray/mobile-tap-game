@@ -27,3 +27,4 @@
 - [Refactor] タッチ操作ボタンの有効化を bindControls() 内でも setTouchControlsEnabled() 経由に統一（aria-disabled/tabIndex も一緒に整合）。挙動は維持。
 - [UI] 入力誤爆（スクロール/ズーム/テキスト選択）をさらに減らすため、ページ全体（html/body）を touch-action:none + user-select:none に（ゲーム外の領域から発生するブラウザジェスチャーも抑止）。
 - [Refactor] ピース行列の「埋まっているセル走査」を forEachFilledCell() に集約（衝突判定/merge/描画のループ重複を削減）。挙動は維持。
+- [UI] [A11y] 長押し（ホールド）操作中に指がボタン外へズレたらリピート入力を即キャンセルするように（誤爆で左右移動/ソフトドロップが暴走するのを抑止）。

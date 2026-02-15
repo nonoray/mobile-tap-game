@@ -428,7 +428,21 @@
       t = null; r = null;
     };
 
+    // Touch UX: if the finger slides off the button, cancel the hold repeat.
+    // (Reduces accidental DAS/soft-drop when aiming for adjacent controls.)
+    const stopIfFingerLeaves = (e) => {
+      if (!t && !r) return; // not active
+      const touch = e?.touches?.[0];
+      if (!touch) return;
+      const rect = btn.getBoundingClientRect();
+      const x = touch.clientX;
+      const y = touch.clientY;
+      const inside = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+      if (!inside) stop(e);
+    };
+
     btn.addEventListener("touchstart", start, { passive: false });
+    btn.addEventListener("touchmove", stopIfFingerLeaves, { passive: false });
     btn.addEventListener("touchend", stop, { passive: false });
     btn.addEventListener("touchcancel", stop, { passive: false });
 
