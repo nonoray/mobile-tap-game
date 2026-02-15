@@ -11,23 +11,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app">
-
-    <section id="menuScreen" class="menu" aria-label="main menu">
-      <div class="menu-card">
-        <div class="menu-title">Mini Arcade</div>
-        <div class="menu-sub">遊びたいゲームを選んでね</div>
-        <div class="menu-grid">
-          <button id="btnMenuTetris" class="menu-btn primary">TETRIS</button>
-          <button id="btnMenuInvaders" class="menu-btn">INVADERS</button>
-          <button class="menu-btn" disabled>COMING SOON</button>
-          <button class="menu-btn" disabled>COMING SOON</button>
-        </div>
-        <div class="menu-note">※音を鳴らすには右上の Sound を ON にしてね</div>
-      </div>
-    </section>
-
-    <div id="gameScreen" class="hidden">
+  <div id="app"><div id="gameScreen">
     <header class="topbar">
       <div class="title" id="gameTitle">Mini Tetris</div>
       <div class="stats-inline" aria-label="stats">
@@ -36,9 +20,7 @@
         <span class="pill">Best <b id="best">0</b></span>
       </div>
       <div class="top-actions">
-        <button id="btnSound" class="small" aria-label="toggle sound">Sound</button>
-        <button id="btnMenu" class="small" aria-label="back to menu">Menu</button>
-      </div>
+        <button id="btnSound" class="small" aria-label="toggle sound">Sound</button></div>
     </header>
 
     <main class="main">

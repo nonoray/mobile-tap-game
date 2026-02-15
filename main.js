@@ -1,4 +1,4 @@
-/* Mini Arcade (mobile-first): Tetris + Invaders */
+/* Mini Arcade (mobile-first): Tetris only */
 (() => {
   // iOS Safari viewport height fix (avoids toolbar "jump" / overlap)
   const setVh = () => {
@@ -56,15 +56,14 @@
   const overlayText = $("overlayText");
   const btnPause = $("btnPause");
   const btnSound = $("btnSound");
-  const btnMenu = $("btnMenu");
+  const btnMenu = null;
   const btnResume = $("btnResume");
   const btnRestart = $("btnRestart");
-
-  // menu
-  const menuScreen = $("menuScreen");
+  // menu removed (Tetris-only)
+  const menuScreen = null;
   const gameScreen = $("gameScreen");
-  const btnMenuTetris = $("btnMenuTetris");
-  const btnMenuInvaders = $("btnMenuInvaders");
+  const btnMenuTetris = null;
+  const btnMenuInvaders = null;
   const tetrisSide = $("tetrisSide");
 
   // touch buttons
@@ -74,28 +73,7 @@
   const btnDown = $("btnDown");
   const btnDrop = $("btnDrop");
 
-  // Touch controls layout tweaks per game (keeps UI labels honest).
-  const controlsEl = document.querySelector('.controls');
-  const rotDefaultText = btnRot?.textContent || '⟳';
-  const rotDefaultAria = btnRot?.getAttribute?.('aria-label') || 'rotate';
-
-  function setControlsLayout(nextMode) {
-    if (!controlsEl) return;
-
-    if (nextMode === 'invaders') {
-      controlsEl.classList.add('invaders');
-      if (btnRot) {
-        btnRot.textContent = 'FIRE';
-        btnRot.setAttribute('aria-label', 'fire');
-      }
-    } else {
-      controlsEl.classList.remove('invaders');
-      if (btnRot) {
-        btnRot.textContent = rotDefaultText;
-        btnRot.setAttribute('aria-label', rotDefaultAria);
-      }
-    }
-  }
+  // Touch controls are fixed for Tetris-only mode.
 
   // --- Audio (WebAudio; no external files) ---
   let audioCtx = null;
@@ -108,11 +86,9 @@
   // Persist small settings (safe for GitHub Pages)
   const SOUND_KEY = 'miniArcade.sound';
   const BEST_TETRIS_KEY = 'miniArcade.best.tetris';
-  const BEST_INVADERS_KEY = 'miniArcade.best.invaders';
 
   // One-time in-game hint (first run per game)
   const HINT_TETRIS_KEY = 'miniArcade.hint.tetris';
-  const HINT_INVADERS_KEY = 'miniArcade.hint.invaders';
 
   const readSoundPref = () => {
     try { return localStorage.getItem(SOUND_KEY) === '1'; } catch { return false; }
@@ -235,7 +211,7 @@
   window.addEventListener('keydown', primeAudioFromGesture, { passive: true, once: true });
 
   // --- UI overlay ---
-  let mode = 'menu';
+  let mode = 'tetris';
   let paused = false;
   let gameOver = false;
 
@@ -260,7 +236,7 @@
     wakeLock = null;
   }
   function updateWakeLock() {
-    const activePlay = (mode !== 'menu') && !paused && !gameOver && !document.hidden;
+    const activePlay = !paused && !gameOver && !document.hidden;
     if (activePlay) requestWakeLock();
     else releaseWakeLock();
   }
@@ -356,19 +332,19 @@
   // Stability: auto-pause when the tab/app goes to background.
   // (Prevents unfair deaths + keeps audio sane on mobile browsers.)
   document.addEventListener('visibilitychange', () => {
-    if (document.hidden && mode !== 'menu' && !paused && !gameOver) pauseToggle(true);
+    if (document.hidden && !paused && !gameOver) pauseToggle(true);
     // WakeLock is invalid in background on most browsers.
     updateWakeLock();
   }, { passive: true });
 
   window.addEventListener('blur', () => {
-    if (mode !== 'menu' && !paused && !gameOver) pauseToggle(true);
+    if (!paused && !gameOver) pauseToggle(true);
   }, { passive: true });
 
   // UX: orientation changes often imply a re-grip on mobile; auto-pause to prevent unfair deaths.
   // (We intentionally do NOT pause on every resize because iOS address bar show/hide triggers resize.)
   window.addEventListener('orientationchange', () => {
-    if (mode !== 'menu' && !paused && !gameOver) {
+    if (!paused && !gameOver) {
       pauseToggle(true);
       overlayText.textContent = '画面の向きが変わったので一時停止したよ。Tap Resume で再開。';
     }
@@ -461,63 +437,7 @@
     try { document.title = title ? `${title} | Mini Arcade` : 'Mini Arcade (Mobile)'; } catch {}
   }
 
-  // --- Game mode switching ---
-
-  // When we set the hash programmatically, we don't want to immediately re-route
-  // via the hashchange listener (which would restart the game twice).
-  let ignoreNextHashChange = false;
-
-  function setRoute(hash, { replace = false } = {}) {
-    const urlNoHash = window.location.pathname + window.location.search;
-    const nextHash = (!hash || hash === '#') ? '' : (hash.startsWith('#') ? hash : ('#' + hash));
-
-    // Avoid needless history entries
-    if (window.location.hash === nextHash) return;
-
-    // Mark this navigation as internal to avoid an immediate duplicate restart.
-    // (hashchange fires async; give it a small window)
-    ignoreNextHashChange = true;
-    setTimeout(() => { ignoreNextHashChange = false; }, 80);
-
-    if (replace) history.replaceState(null, '', urlNoHash + nextHash);
-    else window.location.hash = nextHash;
-  }
-
-  function showMenu({ route = true } = {}) {
-    mode = 'menu';
-    paused = true;
-    gameOver = false;
-    stopBGM();
-    hideOverlay();
-    updateWakeLock();
-    menuScreen.classList.remove('hidden');
-    gameScreen.classList.add('hidden');
-
-    // Menu: hide best (per-game) value to avoid confusion.
-    setBestUI(0);
-
-    // Reset controls to default layout (so deep-linking to Invaders doesn't leave menu in Invaders layout).
-    setControlsLayout('tetris');
-
-    // Keep tab title meaningful even on the menu screen.
-    try { document.title = 'Mini Arcade (Mobile)'; } catch {}
-
-    // Menu is the root route (no hash). Replace so the hardware Back button
-    // from a game returns here cleanly without extra steps.
-    if (route) setRoute('', { replace: true });
-  }
-
-  function showGame() {
-    menuScreen.classList.add('hidden');
-    gameScreen.classList.remove('hidden');
-  }
-
-  function routeFromHash() {
-    const h = (window.location.hash || '').replace(/^#/, '');
-    if (h === 'tetris') startTetris({ route: false });
-    else if (h === 'invaders') startInvaders({ route: false });
-    else showMenu({ route: false });
-  }
+  // --- Game mode: Tetris only ---
 
   // =========================
   // TETRIS
@@ -888,338 +808,9 @@
       showSide: () => { if (tetrisSide) tetrisSide.classList.remove('hidden'); if (nextCanvas) nextCanvas.closest('.panel')?.classList.remove('hidden'); }
     };
   })();
-  const invaders = (() => {
-    // logical units based on canvas px
-    const W = canvas.width;
-    const H = canvas.height;
 
-    let score = 0;
-    let lives = 3;
-
-    const player = { x: W / 2, y: H - 44, w: 34, h: 14, speed: 260 };
-    let bullets = []; // {x,y,v}
-    let ebullets = [];
-
-    let aliens = [];  // {x,y,w,h,alive}
-    let axDir = 1;
-    let axSpeed = 18; // px/sec (constant speed)
-    let descend = 10;
-    let fireCooldown = 0;
-    let invaderShotTimer = 0;
-
-    function updateHUD() {
-      if (scoreEl) scoreEl.textContent = String(score);
-      if (stat2El) stat2El.textContent = String(lives);
-    }
-
-    function resetAliens() {
-      aliens = [];
-      const rows = 5;
-      const cols = 9;
-      const aw = 20;
-      const ah = 14;
-      const gapX = 10;
-      const gapY = 12;
-      const startX = (W - (cols * aw + (cols - 1) * gapX)) / 2;
-      const startY = 74;
-      for (let r = 0; r < rows; r++) {
-        for (let c = 0; c < cols; c++) {
-          aliens.push({
-            x: startX + c * (aw + gapX),
-            y: startY + r * (ah + gapY),
-            w: aw,
-            h: ah,
-            alive: true,
-            row: r,
-          });
-        }
-      }
-      axDir = 1;
-      axSpeed = 24;
-    }
-
-    function restart() {
-      score = 0;
-      lives = 3;
-      gameOver = false;
-      paused = false;
-      bullets = [];
-      ebullets = [];
-      player.x = W / 2;
-      fireCooldown = 0;
-      invaderShotTimer = 0;
-      resetAliens();
-      updateHUD();
-      hideOverlay();
-      btnPause.textContent = "Pause";
-      if (soundOn) startBGM();
-    }
-
-    function endGame(msg = 'Game Over') {
-      gameOver = true;
-      paused = true;
-      stopBGM();
-      beep({ f: 180, t: 0.16, type: 'sawtooth', gain: 0.22 });
-      setTimeout(() => beep({ f: 90, t: 0.22, type: 'sawtooth', gain: 0.18 }), 120);
-
-      const prevBest = readBest(BEST_INVADERS_KEY);
-      const nextBest = Math.max(prevBest, score);
-      if (nextBest !== prevBest) writeBest(BEST_INVADERS_KEY, nextBest);
-      setBestUI(nextBest);
-
-      showOverlay(msg, `Score ${score}\nBest ${nextBest}`);
-    }
-
-    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-
-    function fire() {
-      if (paused || gameOver) return;
-      if (fireCooldown > 0) return;
-      bullets.push({ x: player.x, y: player.y - 8, v: -520 });
-      fireCooldown = 0.18;
-      beep({ f: 980, t: 0.04, type: 'square', gain: 0.18 });
-    }
-
-    function move(dx, dt) {
-      if (paused || gameOver) return;
-      player.x = clamp(player.x + dx * player.speed * dt, 18, W - 18);
-    }
-
-    function anyAlive() { return aliens.some(a => a.alive); }
-
-    function step(dt) {
-      if (paused || gameOver) return;
-
-      fireCooldown = Math.max(0, fireCooldown - dt);
-
-      // constant (slower) approach speed
-      const speedNow = 18; // px/sec
-
-      // alien movement bounds
-      let minX = Infinity, maxX = -Infinity, maxY = -Infinity;
-      for (const a of aliens) {
-        if (!a.alive) continue;
-        minX = Math.min(minX, a.x);
-        maxX = Math.max(maxX, a.x + a.w);
-        maxY = Math.max(maxY, a.y + a.h);
-      }
-
-      const hitWall = (minX <= 14 && axDir < 0) || (maxX >= W - 14 && axDir > 0);
-      if (hitWall) {
-        axDir *= -1;
-        for (const a of aliens) if (a.alive) a.y += descend;
-        // no big speed jumps on wall hit; the ramp is time-based
-        beep({ f: 220, t: 0.03, type: 'triangle', gain: 0.06 });
-      }
-
-      for (const a of aliens) if (a.alive) a.x += axDir * speedNow * dt;
-
-      // bullets
-      for (const b of bullets) b.y += b.v * dt;
-      bullets = bullets.filter(b => b.y > -20);
-
-      // invader shooting
-      invaderShotTimer -= dt;
-      if (invaderShotTimer <= 0) {
-        invaderShotTimer = 0.55 + Math.random() * 0.45;
-        // pick a random alive alien to shoot
-        const alive = aliens.filter(a => a.alive);
-        if (alive.length) {
-          const shooter = alive[(Math.random() * alive.length) | 0];
-          ebullets.push({ x: shooter.x + shooter.w / 2, y: shooter.y + shooter.h + 2, v: 320 });
-          beep({ f: 330, t: 0.02, type: 'square', gain: 0.06 });
-        }
-      }
-
-      for (const b of ebullets) b.y += b.v * dt;
-      ebullets = ebullets.filter(b => b.y < H + 40);
-
-      // collisions: player bullets vs aliens
-      for (const b of bullets) {
-        for (const a of aliens) {
-          if (!a.alive) continue;
-          if (b.x >= a.x && b.x <= a.x + a.w && b.y >= a.y && b.y <= a.y + a.h) {
-            a.alive = false;
-            b.y = -999;
-            score += 10 + (4 - a.row) * 2;
-            beep({ f: 720, t: 0.05, type: 'square', gain: 0.16 });
-            updateHUD();
-            break;
-          }
-        }
-      }
-      bullets = bullets.filter(b => b.y > -50);
-
-      // collisions: invader bullets vs player
-      for (const b of ebullets) {
-        const px = player.x - player.w / 2;
-        const py = player.y - player.h / 2;
-        if (b.x >= px && b.x <= px + player.w && b.y >= py && b.y <= py + player.h) {
-          b.y = 9999;
-          lives -= 1;
-          beep({ f: 140, t: 0.10, type: 'sawtooth', gain: 0.20 });
-          updateHUD();
-          if (lives <= 0) { endGame(); return; }
-        }
-      }
-      ebullets = ebullets.filter(b => b.y < H + 60);
-
-      // lose if invaders reach near player
-      if (maxY >= player.y - 20) {
-        endGame('Invaded');
-        return;
-      }
-
-      // wave clear
-      if (!anyAlive()) {
-        beep({ f: 990, t: 0.12, type: 'square', gain: 0.18 });
-        resetAliens();
-        // next wave: brief "breathing" moment
-        invaderShotTimer = 0.40;
-      }
-    }
-
-    function drawCRTFrame() {
-      // invaders wants a different vibe: scanlines + vignette
-      ctx.fillStyle = 'rgba(0,0,0,.28)';
-      ctx.fillRect(0, 0, W, H);
-
-      // scanlines
-      ctx.strokeStyle = 'rgba(255,255,255,.03)';
-      for (let y = 0; y < H; y += 6) {
-        ctx.beginPath();
-        ctx.moveTo(0, y + 0.5);
-        ctx.lineTo(W, y + 0.5);
-        ctx.stroke();
-      }
-
-      const g = ctx.createRadialGradient(W * 0.5, H * 0.35, 20, W * 0.5, H * 0.5, H * 0.8);
-      g.addColorStop(0, 'rgba(255,79,184,.06)');
-      g.addColorStop(1, 'rgba(0,0,0,.35)');
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
-    }
-
-    function render() {
-      ctx.clearRect(0, 0, W, H);
-      drawCRTFrame();
-
-      // player
-      const px = player.x;
-      const py = player.y;
-      ctx.save();
-      ctx.translate(px, py);
-      ctx.fillStyle = 'rgba(255, 244, 251, .92)';
-      ctx.strokeStyle = 'rgba(255,79,184,.55)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(-player.w/2, player.h/2);
-      ctx.lineTo(0, -player.h/2);
-      ctx.lineTo(player.w/2, player.h/2);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore();
-
-      // aliens
-      for (const a of aliens) {
-        if (!a.alive) continue;
-        const hue = 300 - a.row * 24;
-        ctx.fillStyle = `hsla(${hue}, 100%, 72%, .92)`;
-        ctx.strokeStyle = 'rgba(0,0,0,.18)';
-        ctx.lineWidth = 1;
-        roundRect(ctx, a.x, a.y, a.w, a.h, 4);
-        ctx.fill();
-        ctx.stroke();
-        // eyes
-        ctx.fillStyle = 'rgba(0,0,0,.25)';
-        ctx.fillRect(a.x + 5, a.y + 4, 3, 3);
-        ctx.fillRect(a.x + a.w - 8, a.y + 4, 3, 3);
-      }
-
-      // bullets
-      ctx.fillStyle = 'rgba(255,255,255,.9)';
-      for (const b of bullets) ctx.fillRect(b.x - 1.5, b.y - 6, 3, 10);
-
-      ctx.fillStyle = 'rgba(255,79,184,.85)';
-      for (const b of ebullets) ctx.fillRect(b.x - 2, b.y - 2, 4, 10);
-
-      // top hint line
-      ctx.fillStyle = 'rgba(255,194,223,.80)';
-      ctx.font = '12px "Yusei Magic", system-ui, sans-serif';
-      ctx.fillText('MOVE ◀▶  /  FIRE', 14, 22);
-    }
-
-    function roundRect(c, x, y, w, h, r) {
-      const rr = Math.min(r, w / 2, h / 2);
-      c.beginPath();
-      c.moveTo(x + rr, y);
-      c.arcTo(x + w, y, x + w, y + h, rr);
-      c.arcTo(x + w, y + h, x, y + h, rr);
-      c.arcTo(x, y + h, x, y, rr);
-      c.arcTo(x, y, x + w, y, rr);
-      c.closePath();
-    }
-
-    function bindControls() {
-      btnLeft.disabled = false;
-      btnRight.disabled = false;
-      btnRot.disabled = false;
-      btnDown.disabled = true;
-      btnDrop.disabled = false;
-
-      btnRot.textContent = 'FIRE';
-      btnDown.textContent = '—';
-      btnDrop.textContent = 'FIRE';
-
-      // tap = a small step; hold repeats by bindHold
-      touchActions.leftTap = () => move(-1, 1/60);
-      touchActions.leftHold = () => move(-1, 1/60);
-      touchActions.rightTap = () => move(1, 1/60);
-      touchActions.rightHold = () => move(1, 1/60);
-      touchActions.rotTap = () => fire();
-      touchActions.downTap = () => {};
-      touchActions.downHold = () => {};
-      touchActions.dropTap = () => fire();
-    }
-
-    function onKeyDown(e, dtLike = 1/60) {
-      if (e.key === "p" || e.key === "P") { pauseToggle(); return true; }
-      if (paused && (e.key === "Escape")) { pauseToggle(false); return true; }
-      if (gameOver && (e.key === "Enter")) { restart(); return true; }
-      if (paused || gameOver) return false;
-      switch (e.key) {
-        case "ArrowLeft": move(-1, dtLike); return true;
-        case "ArrowRight": move(1, dtLike); return true;
-        case " ":
-        case "ArrowUp":
-        case "z": case "Z":
-        case "x": case "X":
-          fire();
-          return true;
-      }
-      return false;
-    }
-
-    return {
-      restart,
-      step,
-      render,
-      bindControls,
-      onKeyDown,
-      hud: () => setHUD({ title: 'Mini Invaders', footer: 'MINI INVADERS', stat2Label: 'Lives' }),
-      showSide: () => { if (tetrisSide) tetrisSide.classList.add('hidden'); }
-    };
-  })();
-
-  function currentGame() {
-    return mode === 'invaders' ? invaders : tetris;
-  }
-
-  function startTetris({ route = true } = {}) {
+  function startTetris() {
     mode = 'tetris';
-    setControlsLayout('tetris');
-    showGame();
     updateWakeLock();
     tetris.hud();
     setBestUI(readBest(BEST_TETRIS_KEY));
@@ -1239,39 +830,7 @@
         '右上の Ⅱ で一時停止できます。',
       ].join('\n')
     });
-
-    if (route) setRoute('tetris');
   }
-
-  function startInvaders({ route = true } = {}) {
-    mode = 'invaders';
-    setControlsLayout('invaders');
-    showGame();
-    updateWakeLock();
-    invaders.hud();
-    setBestUI(readBest(BEST_INVADERS_KEY));
-    if (tetrisSide) tetrisSide.classList.add('hidden');
-    invaders.bindControls();
-    invaders.restart();
-
-    showHintOnce(HINT_INVADERS_KEY, {
-      title: 'Invaders: はじめに',
-      text: [
-        '操作:',
-        '  ◀ ▶  移動',
-        '  FIRE 発射',
-        '',
-        '敵の弾に当たるとライフが減ります。',
-        '右上の Ⅱ で一時停止できます。',
-      ].join('\n')
-    });
-
-    if (route) setRoute('invaders');
-  }
-
-  btnMenuTetris.addEventListener('click', () => startTetris());
-  btnMenuInvaders.addEventListener('click', () => startInvaders());
-  btnMenu.addEventListener('click', () => showMenu());
 
   btnSound.addEventListener('click', () => setSound(!soundOn));
 
@@ -1285,21 +844,16 @@
   // (Avoids accidental resumes by requiring the click target to be the overlay itself, not the card.)
   overlay.addEventListener('click', (e) => {
     if (e.target !== overlay) return;
-    if (mode === 'menu') return;
     if (!paused || gameOver) return;
     if ((overlayTitle?.textContent || '') !== 'Paused') return;
     pauseToggle(false);
   }, { passive: true });
-
   btnRestart.addEventListener("click", () => {
-    if (mode === 'tetris') tetris.restart();
-    else if (mode === 'invaders') invaders.restart();
+    tetris.restart();
   });
-
-  // keyboard routes to current game
+  // keyboard
   window.addEventListener("keydown", (e) => {
-    if (mode === 'menu') return;
-    currentGame().onKeyDown(e);
+    tetris.onKeyDown(e);
   }, { passive: true });
 
   // render loop
@@ -1307,36 +861,17 @@
   function loop(time = 0) {
     const dt = Math.min(0.05, (time - lastTime) / 1000);
     lastTime = time;
-
-    if (mode === 'tetris') {
-      tetris.step(dt * 1000);
-      tetris.render();
-    } else if (mode === 'invaders') {
-      invaders.step(dt);
-      invaders.render();
-    } else {
-      // menu: draw a quiet idle frame (keeps canvas from looking stale)
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-    }
+    tetris.step(dt * 1000);
+    tetris.render();
 
     requestAnimationFrame(loop);
   }
-
   // start
   setSound(readSoundPref(), { persist: false });
-  paused = true;
+  paused = false;
+  gameOver = false;
+  startTetris();
   updateWakeLock();
-
-  // Support deep links + mobile hardware Back button
-  window.addEventListener('hashchange', () => {
-    if (ignoreNextHashChange) {
-      // Consume once.
-      ignoreNextHashChange = false;
-      return;
-    }
-    routeFromHash();
-  });
-  routeFromHash();
 
   requestAnimationFrame(loop);
 })();
