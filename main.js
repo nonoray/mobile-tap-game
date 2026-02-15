@@ -637,6 +637,24 @@
       ctx.globalAlpha = 1;
     }
 
+    // Ghost piece: outline-only, high-contrast, dashed.
+    // Goal: you can read landing position instantly without confusing it with a placed piece.
+    function drawGhostBlock(x, y) {
+      const px = x * BLOCK;
+      const py = y * BLOCK;
+      ctx.save();
+      ctx.globalAlpha = 1;
+      ctx.setLineDash([5, 3]);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255, 244, 251, .65)";
+      ctx.strokeRect(px + 3, py + 3, BLOCK - 6, BLOCK - 6);
+      ctx.setLineDash([]);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(255, 79, 184, .35)";
+      ctx.strokeRect(px + 2.5, py + 2.5, BLOCK - 5, BLOCK - 5);
+      ctx.restore();
+    }
+
     function drawBoard() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -666,7 +684,7 @@
         const bx = current.x + x;
         const by = gy + y;
         if (by < 0) continue;
-        drawBlock(bx, by, COLORS.G, 0.35);
+        drawGhostBlock(bx, by);
       }
 
       for (let y = 0; y < current.mat.length; y++) for (let x = 0; x < current.mat[y].length; x++) {
