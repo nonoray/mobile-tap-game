@@ -181,6 +181,7 @@
   window.addEventListener('keydown', primeAudioFromGesture, { passive: true, once: true });
 
   // --- UI overlay ---
+  let mode = 'menu';
   let paused = false;
   let gameOver = false;
 
@@ -207,6 +208,16 @@
       hideOverlay();
     }
   }
+
+  // Stability: auto-pause when the tab/app goes to background.
+  // (Prevents unfair deaths + keeps audio sane on mobile browsers.)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden && mode !== 'menu' && !paused && !gameOver) pauseToggle(true);
+  }, { passive: true });
+
+  window.addEventListener('blur', () => {
+    if (mode !== 'menu' && !paused && !gameOver) pauseToggle(true);
+  }, { passive: true });
 
   // --- Input wiring (buttons re-bound per game) ---
   function bindHold(btn, onTap, onHold) {
@@ -268,7 +279,6 @@
   }
 
   // --- Game mode switching ---
-  let mode = 'menu';
 
   function setRoute(hash, { replace = false } = {}) {
     const urlNoHash = window.location.pathname + window.location.search;
