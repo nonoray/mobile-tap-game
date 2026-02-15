@@ -113,7 +113,14 @@ body::before{
   letter-spacing:.06em;
   white-space:nowrap;
 }
-.pill b{font-size:13px; font-weight:1000; letter-spacing:0}
+.pill b{
+  font-size:13px;
+  font-weight:1000;
+  letter-spacing:0;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  text-shadow: 0 1px 0 rgba(0,0,0,.35);
+}
 button{
   border:1px solid rgba(255,255,255,.16);
   background: linear-gradient(180deg, rgba(255,79,184,.42), rgba(58,16,48,.86));
