@@ -107,6 +107,7 @@
     if (!audioCtx) {
       btnSound.textContent = "Sound: N/A";
       btnSound.disabled = true;
+      btnSound.setAttribute('aria-pressed', 'false');
       return;
     }
 
@@ -115,6 +116,8 @@
     }
 
     btnSound.textContent = soundOn ? "Sound: ON" : "Sound: OFF";
+    btnSound.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+
     if (soundOn) {
       audioCtx.resume?.();
       startBGM();
@@ -194,6 +197,8 @@
     if (gameOver) return;
     paused = (force === undefined) ? !paused : !!force;
     btnPause.textContent = paused ? "Resume" : "Pause";
+    btnPause.setAttribute('aria-pressed', paused ? 'true' : 'false');
+
     if (paused) {
       stopBGM();
       showOverlay("Paused", "Tap Resume to continue.");
@@ -257,6 +262,9 @@
     if (titleEl) titleEl.textContent = title;
     if (footerEl && footer) footerEl.textContent = footer;
     if (stat2LabelEl) stat2LabelEl.textContent = stat2Label;
+
+    // Keep browser/tab title in sync (helps iOS Safari tab switcher + accessibility)
+    try { document.title = title ? `${title} | Mini Arcade` : 'Mini Arcade (Mobile)'; } catch {}
   }
 
   // --- Game mode switching ---
@@ -281,6 +289,9 @@
     hideOverlay();
     menuScreen.classList.remove('hidden');
     gameScreen.classList.add('hidden');
+
+    // Keep tab title meaningful even on the menu screen.
+    try { document.title = 'Mini Arcade (Mobile)'; } catch {}
 
     // Menu is the root route (no hash). Replace so the hardware Back button
     // from a game returns here cleanly without extra steps.
