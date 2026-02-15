@@ -224,6 +224,15 @@
     if (mode !== 'menu' && !paused && !gameOver) pauseToggle(true);
   }, { passive: true });
 
+  // UX: orientation changes often imply a re-grip on mobile; auto-pause to prevent unfair deaths.
+  // (We intentionally do NOT pause on every resize because iOS address bar show/hide triggers resize.)
+  window.addEventListener('orientationchange', () => {
+    if (mode !== 'menu' && !paused && !gameOver) {
+      pauseToggle(true);
+      overlayText.textContent = '画面の向きが変わったので一時停止したよ。Tap Resume で再開。';
+    }
+  }, { passive: true });
+
   // --- Input wiring (buttons re-bound per game) ---
   function bindHold(btn, onTap, onHold) {
     let t = null;
