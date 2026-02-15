@@ -886,10 +886,18 @@
       const py = y * BLOCK;
       ctx.save();
       ctx.globalAlpha = 1;
+
+      // Two-pass outline (dark -> light) keeps the ghost readable on any piece color
+      // and against the grid (less "where does it land?" hesitation).
       ctx.setLineDash([5, 3]);
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = "rgba(255, 244, 251, .65)";
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(0,0,0,.35)";
       ctx.strokeRect(px + 3, py + 3, BLOCK - 6, BLOCK - 6);
+
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255, 244, 251, .72)";
+      ctx.strokeRect(px + 3, py + 3, BLOCK - 6, BLOCK - 6);
+
       ctx.setLineDash([]);
       ctx.lineWidth = 1;
       ctx.strokeStyle = "rgba(255, 79, 184, .35)";
