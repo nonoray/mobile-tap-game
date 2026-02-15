@@ -256,13 +256,20 @@
   }, { passive: true });
 
   // --- Input wiring (buttons re-bound per game) ---
+  // NOTE: On desktop, `mousedown` + `click` can both fire for the same interaction.
+  // We suppress the follow-up click for a short window to avoid double actions.
   function bindHold(btn, onTap, onHold) {
     let t = null;
     let r = null;
+    let suppressClickUntil = 0;
 
     const start = (e) => {
       if (btn.disabled) return;
       e?.preventDefault?.();
+
+      // Prevent a subsequent synthetic click from triggering a second tap.
+      suppressClickUntil = (performance?.now?.() || Date.now()) + 450;
+
       onTap();
       t = setTimeout(() => { r = setInterval(() => onHold(), 60); }, 180);
     };
@@ -281,12 +288,33 @@
     btn.addEventListener("mouseup", stop, { passive: false });
     btn.addEventListener("mouseleave", stop, { passive: false });
 
-    btn.addEventListener("click", (e) => { if (btn.disabled) return; e.preventDefault(); onTap(); }, { passive: false });
+    btn.addEventListener("click", (e) => {
+      if (btn.disabled) return;
+      const now = (performance?.now?.() || Date.now());
+      if (now < suppressClickUntil) { e.preventDefault(); return; }
+      e.preventDefault();
+      onTap();
+    }, { passive: false });
   }
   function bindTap(btn, fn) {
-    btn.addEventListener("touchstart", (e) => { if (btn.disabled) return; e.preventDefault(); fn(); }, { passive: false });
-    btn.addEventListener("mousedown", (e) => { if (btn.disabled) return; e.preventDefault(); fn(); }, { passive: false });
-    btn.addEventListener("click", (e) => { if (btn.disabled) return; e.preventDefault(); fn(); }, { passive: false });
+    let suppressClickUntil = 0;
+
+    const start = (e) => {
+      if (btn.disabled) return;
+      e?.preventDefault?.();
+      suppressClickUntil = (performance?.now?.() || Date.now()) + 450;
+      fn();
+    };
+
+    btn.addEventListener("touchstart", start, { passive: false });
+    btn.addEventListener("mousedown", start, { passive: false });
+    btn.addEventListener("click", (e) => {
+      if (btn.disabled) return;
+      const now = (performance?.now?.() || Date.now());
+      if (now < suppressClickUntil) { e.preventDefault(); return; }
+      e.preventDefault();
+      fn();
+    }, { passive: false });
   }
 
   // We bind once, route to current handlers.
