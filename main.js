@@ -46,6 +46,7 @@
 
   const scoreEl = $("score");
   const stat2El = $("stat2");
+  const bestEl = $("best");
   const stat2LabelEl = $("stat2Label");
   const titleEl = $("gameTitle");
   const footerEl = $("gameFooter");
@@ -83,9 +84,30 @@
 
   // Persist small settings (safe for GitHub Pages)
   const SOUND_KEY = 'miniArcade.sound';
+  const BEST_TETRIS_KEY = 'miniArcade.best.tetris';
+  const BEST_INVADERS_KEY = 'miniArcade.best.invaders';
+
   const readSoundPref = () => {
     try { return localStorage.getItem(SOUND_KEY) === '1'; } catch { return false; }
   };
+
+  function readBest(key) {
+    try {
+      const v = Number(localStorage.getItem(key) || 0);
+      return Number.isFinite(v) ? v : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  function writeBest(key, value) {
+    try { localStorage.setItem(key, String(value)); } catch {}
+  }
+
+  function setBestUI(value) {
+    if (!bestEl) return;
+    bestEl.textContent = String(value || 0);
+  }
 
   function ensureAudio() {
     if (audioCtx) return;
@@ -314,6 +336,9 @@
     menuScreen.classList.remove('hidden');
     gameScreen.classList.add('hidden');
 
+    // Menu: hide best (per-game) value to avoid confusion.
+    setBestUI(0);
+
     // Keep tab title meaningful even on the menu screen.
     try { document.title = 'Mini Arcade (Mobile)'; } catch {}
 
@@ -473,8 +498,14 @@
       stopBGM();
       beep({ f: 196, t: 0.18, type: 'sawtooth', gain: 0.22 });
       setTimeout(() => beep({ f: 110, t: 0.22, type: 'sawtooth', gain: 0.18 }), 120);
+
+      const prevBest = readBest(BEST_TETRIS_KEY);
+      const nextBest = Math.max(prevBest, score);
+      if (nextBest !== prevBest) writeBest(BEST_TETRIS_KEY, nextBest);
+      setBestUI(nextBest);
+
       btnPause.textContent = "Pause";
-      showOverlay("Game Over", `Score ${score} / Lines ${lines}`);
+      showOverlay("Game Over", `Score ${score} / Lines ${lines}\nBest ${nextBest}`);
     }
 
     function lockPiece() {
@@ -775,7 +806,13 @@
       stopBGM();
       beep({ f: 180, t: 0.16, type: 'sawtooth', gain: 0.22 });
       setTimeout(() => beep({ f: 90, t: 0.22, type: 'sawtooth', gain: 0.18 }), 120);
-      showOverlay(msg, `Score ${score}`);
+
+      const prevBest = readBest(BEST_INVADERS_KEY);
+      const nextBest = Math.max(prevBest, score);
+      if (nextBest !== prevBest) writeBest(BEST_INVADERS_KEY, nextBest);
+      setBestUI(nextBest);
+
+      showOverlay(msg, `Score ${score}\nBest ${nextBest}`);
     }
 
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -1028,6 +1065,7 @@
     mode = 'tetris';
     showGame();
     tetris.hud();
+    setBestUI(readBest(BEST_TETRIS_KEY));
     if (tetrisSide) tetrisSide.classList.remove('hidden');
     tetris.bindControls();
     tetris.restart();
@@ -1038,6 +1076,7 @@
     mode = 'invaders';
     showGame();
     invaders.hud();
+    setBestUI(readBest(BEST_INVADERS_KEY));
     if (tetrisSide) tetrisSide.classList.add('hidden');
     invaders.bindControls();
     invaders.restart();

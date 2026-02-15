@@ -96,7 +96,7 @@ body::before{
 }
 .top-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end}
 
-.stats-inline{display:flex;gap:6px;align-items:center;justify-content:center;flex:1;min-width:0}
+.stats-inline{display:flex;gap:6px;align-items:center;justify-content:center;flex:1;min-width:0;flex-wrap:wrap}
 .pill{
   display:inline-flex;
   gap:6px;
@@ -302,7 +302,7 @@ canvas{
   padding:16px;
 }
 .big{font-size:26px;font-weight:900;margin-bottom:6px}
-.smalltext{color:var(--muted);margin-bottom:12px}
+.smalltext{color:var(--muted);margin-bottom:12px;white-space:pre-line}
 .row{display:flex;gap:10px}
 .row button{flex:1}
 
