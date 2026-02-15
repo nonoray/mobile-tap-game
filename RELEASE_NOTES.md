@@ -22,3 +22,4 @@
 - [UI] [A11y] さらに誤爆を減らすため、Pauseボタンと各操作ボタン（.ctl）にも touch-action:none を追加（ボタン上からのスワイプでページが動く/ズームする事故を抑止）。
 - [Refactor] タッチ/マウス入力の「クリック抑止（touchstart/mousedown後のsynthetic click二重発火防止）」ロジックを makeClickSuppressor() に集約。挙動は維持しつつ、入力まわりの修正点を一点化。
 - [UI] ポーズ/サウンド/Resume/Restart もタッチ用の bindTap() 経由に統一（touchstart優先 + synthetic click抑止 + haptics）。モバイルでの二重トグルや反応遅れによる誤爆を減らす。
+- [UI] [A11y] ポーズ/ゲームオーバーのモーダル表示中はタッチ操作ボタンを disabled + tab停止にして、背面操作の誤爆と「バイブだけ鳴る」混乱を防止。

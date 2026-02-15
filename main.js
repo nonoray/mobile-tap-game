@@ -272,6 +272,10 @@
     overlayTitle.textContent = title;
     overlayText.textContent = text;
 
+    // While the modal is up, hard-disable the gameplay touch buttons.
+    // (Prevents accidental inputs + avoids misleading haptic pulses.)
+    setTouchControlsEnabled(false);
+
     lastFocusEl = document.activeElement;
     overlay.classList.remove("hidden");
 
@@ -281,6 +285,10 @@
   }
   function hideOverlay() {
     overlay.classList.add("hidden");
+
+    // Re-enable touch controls when leaving the modal (unless game-over keeps us paused).
+    setTouchControlsEnabled(!paused && !gameOver);
+
     try { lastFocusEl?.focus?.({ preventScroll: true }); } catch { lastFocusEl?.focus?.(); }
     lastFocusEl = null;
   }
@@ -467,6 +475,18 @@
     downTap: () => {}, downHold: () => {},
     dropTap: () => {},
   };
+
+  // UI safety: when paused / game-over, disable touch controls so taps don't
+  // produce haptics or "did it register?" confusion.
+  function setTouchControlsEnabled(enabled) {
+    const on = !!enabled;
+    for (const el of [btnLeft, btnRight, btnRot, btnDown, btnDrop]) {
+      if (!el) continue;
+      el.disabled = !on;
+      el.setAttribute('aria-disabled', on ? 'false' : 'true');
+      el.tabIndex = on ? 0 : -1;
+    }
+  }
 
   bindHold(btnLeft,  () => touchActions.leftTap(),  () => touchActions.leftHold());
   bindHold(btnRight, () => touchActions.rightTap(), () => touchActions.rightHold());
