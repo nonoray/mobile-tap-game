@@ -285,6 +285,21 @@ canvas{
 
   flex: 0 0 auto;
 }
+
+/* Invaders: fewer controls (left/right + FIRE), bigger tap target */
+.controls.invaders{
+  grid-template-columns: 72px 72px 1fr;
+}
+.controls.invaders #btnDown,
+.controls.invaders #btnDrop{
+  display:none;
+}
+.controls.invaders #btnRot{
+  grid-column: 3 / -1;
+  font-size: 16px;
+  letter-spacing: .14em;
+}
+
 .ctl{min-height:52px;font-size:18px;border-radius:0px}
 #btnDrop{font-size:14px;letter-spacing:.12em}
 .overlay{

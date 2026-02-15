@@ -74,6 +74,29 @@
   const btnDown = $("btnDown");
   const btnDrop = $("btnDrop");
 
+  // Touch controls layout tweaks per game (keeps UI labels honest).
+  const controlsEl = document.querySelector('.controls');
+  const rotDefaultText = btnRot?.textContent || '⟳';
+  const rotDefaultAria = btnRot?.getAttribute?.('aria-label') || 'rotate';
+
+  function setControlsLayout(nextMode) {
+    if (!controlsEl) return;
+
+    if (nextMode === 'invaders') {
+      controlsEl.classList.add('invaders');
+      if (btnRot) {
+        btnRot.textContent = 'FIRE';
+        btnRot.setAttribute('aria-label', 'fire');
+      }
+    } else {
+      controlsEl.classList.remove('invaders');
+      if (btnRot) {
+        btnRot.textContent = rotDefaultText;
+        btnRot.setAttribute('aria-label', rotDefaultAria);
+      }
+    }
+  }
+
   // --- Audio (WebAudio; no external files) ---
   let audioCtx = null;
   let master = null;
@@ -436,6 +459,9 @@
 
     // Menu: hide best (per-game) value to avoid confusion.
     setBestUI(0);
+
+    // Reset controls to default layout (so deep-linking to Invaders doesn't leave menu in Invaders layout).
+    setControlsLayout('tetris');
 
     // Keep tab title meaningful even on the menu screen.
     try { document.title = 'Mini Arcade (Mobile)'; } catch {}
@@ -1161,6 +1187,7 @@
 
   function startTetris({ route = true } = {}) {
     mode = 'tetris';
+    setControlsLayout('tetris');
     showGame();
     updateWakeLock();
     tetris.hud();
@@ -1187,6 +1214,7 @@
 
   function startInvaders({ route = true } = {}) {
     mode = 'invaders';
+    setControlsLayout('invaders');
     showGame();
     updateWakeLock();
     invaders.hud();
