@@ -428,12 +428,16 @@
       // Prevent a subsequent synthetic click from triggering a second tap.
       suppressor.mark();
 
+      // Visual press feedback: reduces uncertainty → reduces over-taps.
+      try { btn.classList.add('is-pressed'); } catch {}
+
       onTap();
       hapticTap(8);
       t = setTimeout(() => { r = setInterval(() => onHold(), 60); }, 180);
     };
     const stop = (e) => {
       e?.preventDefault?.();
+      try { btn.classList.remove('is-pressed'); } catch {}
       if (t) clearTimeout(t);
       if (r) clearInterval(r);
       t = null; r = null;
@@ -497,6 +501,8 @@
       armed = true;
       clearPending();
 
+      try { btn.classList.add('is-pressed'); } catch {}
+
       // Tiny delay so a swipe-across can cancel before we commit the action.
       pendingTimer = setTimeout(() => { if (armed) fire(); }, 28);
     };
@@ -508,6 +514,7 @@
       // (only if the finger didn't slide off the button).
       if (!fired && armed) fire();
 
+      try { btn.classList.remove('is-pressed'); } catch {}
       clearPending();
       armed = false;
     };
@@ -518,6 +525,7 @@
       if (!touch) return;
       if (!isTouchInsideElement(btn, touch)) {
         armed = false;
+        try { btn.classList.remove('is-pressed'); } catch {}
         clearPending();
       }
     };
@@ -525,13 +533,23 @@
     btn.addEventListener("touchstart", startTouch, { passive: false });
     btn.addEventListener("touchmove", cancelIfFingerLeaves, { passive: false });
     btn.addEventListener("touchend", stopTouch, { passive: false });
-    btn.addEventListener("touchcancel", () => { clearPending(); fired = false; armed = false; }, { passive: false });
+    btn.addEventListener("touchcancel", () => {
+      try { btn.classList.remove('is-pressed'); } catch {}
+      clearPending();
+      fired = false;
+      armed = false;
+    }, { passive: false });
 
     // Mouse/desktop: keep instant on press.
     const startMouse = (e) => {
       if (btn.disabled) return;
       e?.preventDefault?.();
       suppressor.mark();
+
+      try { btn.classList.add('is-pressed'); } catch {}
+      // Remove quickly; mouse users already get :active but this keeps behavior consistent.
+      setTimeout(() => { try { btn.classList.remove('is-pressed'); } catch {} }, 90);
+
       fn();
       hapticTap(8);
     };

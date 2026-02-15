@@ -141,6 +141,16 @@ button{
 }
 button:hover{filter:saturate(1.10)}
 button:active{transform: translateY(1px) scale(.99); filter:saturate(1.18)}
+
+/* Visual confirmation for touch/pointer press (reduces “did it register?” re-taps) */
+button.is-pressed{
+  transform: translateY(1px) scale(.99);
+  filter: saturate(1.22) brightness(1.02);
+  box-shadow:
+    0 10px 24px rgba(255,79,184,.14),
+    0 0 0 2px rgba(255,79,184,.22) inset;
+}
+
 button.small{padding:7px 10px;font-size:12px;letter-spacing:.06em}
 button.primary{background: linear-gradient(180deg, #ff7ad1, var(--accent));}
 button:focus-visible{outline: 3px solid rgba(255,79,184,.55); outline-offset: 2px;}

@@ -36,3 +36,4 @@
 - [Refactor] タッチ操作の「指がボタン内にいるか」判定を isTouchInsideElement() に共通化（bindHold/bindTap）。挙動は維持。
 - [Refactor] Tetrisの各操作（move/rotate/drop）の「paused/gameOverガード」を isInputLocked() に集約。将来の入力/タイミング調整で条件がズレて事故りにくく（挙動は維持）。
 - [UI] [A11y] ボタンに aria-keyshortcuts + title（ツールチップ）を付与して、操作の迷いを減らす（Pause=P / Resume=P,Esc / SpeedLock=L / Drop=Space など）。
+- [UI] タッチ操作ボタンに「押せた」視覚フィードバック（pressed状態の強調）を追加。押下が分かりやすくなり、迷い連打/誤爆を減らす狙い。
