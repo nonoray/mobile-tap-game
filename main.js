@@ -642,9 +642,15 @@
       ctx.fillRect(px + 1, py + 1, BLOCK - 2, BLOCK - 2);
       ctx.fillStyle = g;
       ctx.fillRect(px + 1, py + 1, BLOCK - 2, BLOCK - 2);
-      ctx.strokeStyle = "rgba(255,255,255,.18)";
-      ctx.lineWidth = 1;
+      // Edge contrast: helps read block boundaries at a glance (esp. on bright pieces).
+      // Dark outer stroke separates adjacent blocks; light inner stroke keeps the "gloss".
+      ctx.setLineDash([]);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(0,0,0,.28)";
       ctx.strokeRect(px + 1.5, py + 1.5, BLOCK - 3, BLOCK - 3);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(255,255,255,.22)";
+      ctx.strokeRect(px + 2.5, py + 2.5, BLOCK - 5, BLOCK - 5);
       ctx.globalAlpha = 1;
     }
 
