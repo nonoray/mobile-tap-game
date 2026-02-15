@@ -207,6 +207,9 @@ button:focus-visible{outline: 3px solid rgba(255,79,184,.55); outline-offset: 2p
   justify-content:center;
   background: linear-gradient(180deg, rgba(255,255,255,.18), rgba(58,16,48,.78));
   box-shadow: 0 10px 22px rgba(0,0,0,.22), 0 0 0 1px rgba(255,255,255,.16) inset;
+
+  /* More reliable on mobile: don't let the Pause button trigger browser gestures */
+  touch-action: none;
 }
 .screen::after{
   content:"";
@@ -294,7 +297,10 @@ canvas{
 }
 
 
-.ctl{min-height:52px;font-size:18px;border-radius:0px}
+.ctl{min-height:52px;font-size:18px;border-radius:0px;
+  /* Don't allow swipe/scroll gestures to start from buttons (reduces accidental page moves) */
+  touch-action: none;
+}
 #btnDrop{font-size:14px;letter-spacing:.12em}
 .overlay{
   position:absolute;inset:0;

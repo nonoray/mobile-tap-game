@@ -17,4 +17,5 @@
 - [Refactor] ライン消去のスコア/SFX定数とローテーションのkick配列をトップレベル定数へ移動（毎回の再生成を避け、調整点を一点化）。挙動は維持。
 - [UI] タップを取りこぼさないよう、プレイ画面の装飾レイヤー（.screen::after）を pointer-events:none に変更（Pauseボタン/キャンバスへの誤爆・無反応を減らす）。
 - [UI] 入力誤爆（スクロール/ズーム系）を減らすため、プレイ画面（.screen）と操作バー（.controls）に touch-action:none を追加（対応ブラウザでデフォルトジェスチャーを抑止）。
+- [UI] [A11y] さらに誤爆を減らすため、Pauseボタンと各操作ボタン（.ctl）にも touch-action:none を追加（ボタン上からのスワイプでページが動く/ズームする事故を抑止）。
 - [Refactor] タッチ/マウス入力の「クリック抑止（touchstart/mousedown後のsynthetic click二重発火防止）」ロジックを makeClickSuppressor() に集約。挙動は維持しつつ、入力まわりの修正点を一点化。
