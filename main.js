@@ -1114,9 +1114,15 @@
   }
 
   // keyboard
+  // Prevent default browser scrolling (Arrow keys / Space) when the game consumes the input.
+  // This reduces accidental page movement and keeps practice flow uninterrupted.
   window.addEventListener("keydown", (e) => {
-    tetris.onKeyDown(e);
-  }, { passive: true });
+    const handled = tetris.onKeyDown(e);
+    if (handled) {
+      try { e.preventDefault(); } catch {}
+      try { e.stopPropagation(); } catch {}
+    }
+  }, { passive: false });
 
   // render loop (time in ms from requestAnimationFrame)
   let lastTime = 0;
