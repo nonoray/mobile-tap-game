@@ -87,6 +87,10 @@
   const BEST_TETRIS_KEY = 'miniArcade.best.tetris';
   const BEST_INVADERS_KEY = 'miniArcade.best.invaders';
 
+  // One-time in-game hint (first run per game)
+  const HINT_TETRIS_KEY = 'miniArcade.hint.tetris';
+  const HINT_INVADERS_KEY = 'miniArcade.hint.invaders';
+
   const readSoundPref = () => {
     try { return localStorage.getItem(SOUND_KEY) === '1'; } catch { return false; }
   };
@@ -232,6 +236,21 @@
     lastFocusEl = null;
   }
 
+  function showHintOnce(storageKey, { title, text } = {}) {
+    let seen = false;
+    try { seen = localStorage.getItem(storageKey) === '1'; } catch {}
+    if (seen) return;
+
+    // Show as a paused modal so it's readable and doesn't cause unfair deaths.
+    paused = true;
+    btnPause.textContent = "Resume";
+    btnPause.setAttribute('aria-pressed', 'true');
+    stopBGM();
+    showOverlay(title || 'Hint', text || '');
+
+    try { localStorage.setItem(storageKey, '1'); } catch {}
+  }
+
   function pauseToggle(force) {
     if (gameOver) return;
     paused = (force === undefined) ? !paused : !!force;
@@ -355,12 +374,21 @@
 
   // --- Game mode switching ---
 
+  // When we set the hash programmatically, we don't want to immediately re-route
+  // via the hashchange listener (which would restart the game twice).
+  let ignoreNextHashChange = false;
+
   function setRoute(hash, { replace = false } = {}) {
     const urlNoHash = window.location.pathname + window.location.search;
     const nextHash = (!hash || hash === '#') ? '' : (hash.startsWith('#') ? hash : ('#' + hash));
 
     // Avoid needless history entries
     if (window.location.hash === nextHash) return;
+
+    // Mark this navigation as internal to avoid an immediate duplicate restart.
+    // (hashchange fires async; give it a small window)
+    ignoreNextHashChange = true;
+    setTimeout(() => { ignoreNextHashChange = false; }, 80);
 
     if (replace) history.replaceState(null, '', urlNoHash + nextHash);
     else window.location.hash = nextHash;
@@ -1108,6 +1136,20 @@
     if (tetrisSide) tetrisSide.classList.remove('hidden');
     tetris.bindControls();
     tetris.restart();
+
+    showHintOnce(HINT_TETRIS_KEY, {
+      title: 'Tetris: はじめに',
+      text: [
+        '操作:',
+        '  ◀ ▶  移動',
+        '  ⟳    回転',
+        '  ▼    ソフトドロップ',
+        '  DROP ハードドロップ',
+        '',
+        '右上の Ⅱ で一時停止できます。',
+      ].join('\n')
+    });
+
     if (route) setRoute('tetris');
   }
 
@@ -1119,6 +1161,19 @@
     if (tetrisSide) tetrisSide.classList.add('hidden');
     invaders.bindControls();
     invaders.restart();
+
+    showHintOnce(HINT_INVADERS_KEY, {
+      title: 'Invaders: はじめに',
+      text: [
+        '操作:',
+        '  ◀ ▶  移動',
+        '  FIRE 発射',
+        '',
+        '敵の弾に当たるとライフが減ります。',
+        '右上の Ⅱ で一時停止できます。',
+      ].join('\n')
+    });
+
     if (route) setRoute('invaders');
   }
 
@@ -1170,7 +1225,14 @@
   paused = true;
 
   // Support deep links + mobile hardware Back button
-  window.addEventListener('hashchange', routeFromHash);
+  window.addEventListener('hashchange', () => {
+    if (ignoreNextHashChange) {
+      // Consume once.
+      ignoreNextHashChange = false;
+      return;
+    }
+    routeFromHash();
+  });
   routeFromHash();
 
   requestAnimationFrame(loop);
