@@ -209,6 +209,7 @@ button:focus-visible{outline: 3px solid rgba(255,79,184,.55); outline-offset: 2p
   content:"";
   position:absolute;
   inset:0;
+  pointer-events:none; /* never steal taps from Pause / canvas (reduces misfires) */
   /* static cute highlight (no rotation) */
   background:
     radial-gradient(600px 260px at 30% 10%, rgba(255,255,255,.12), transparent 60%),
