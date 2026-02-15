@@ -186,6 +186,9 @@ button:focus-visible{outline: 3px solid rgba(255,79,184,.55); outline-offset: 2p
   box-shadow: 0 0 0 1px rgba(255,79,184,.10) inset, 0 14px 40px rgba(255,79,184,.10);
   position: relative;
   overflow:hidden;
+
+  /* Browsers that support Pointer Events: prevent default pan/zoom on the play area */
+  touch-action: none;
 }
 
 .pause-fab{
@@ -283,6 +286,9 @@ canvas{
   background: rgba(18,24,38,.55);
   border:1px solid rgba(255,255,255,.08);
   backdrop-filter: blur(10px);
+
+  /* Android Chrome etc: kill scroll/zoom gestures on the control strip itself */
+  touch-action: none;
 
   flex: 0 0 auto;
 }
