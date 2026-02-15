@@ -353,6 +353,9 @@
   // --- Input wiring (buttons re-bound per game) ---
   // NOTE: On desktop, `mousedown` + `click` can both fire for the same interaction.
   // We suppress the follow-up click for a short window to avoid double actions.
+  const nowMs = () => (globalThis.performance?.now ? globalThis.performance.now() : Date.now());
+  const CLICK_SUPPRESS_MS = 450;
+
   function bindHold(btn, onTap, onHold) {
     let t = null;
     let r = null;
@@ -363,7 +366,7 @@
       e?.preventDefault?.();
 
       // Prevent a subsequent synthetic click from triggering a second tap.
-      suppressClickUntil = (performance?.now?.() || Date.now()) + 450;
+      suppressClickUntil = nowMs() + CLICK_SUPPRESS_MS;
 
       onTap();
       t = setTimeout(() => { r = setInterval(() => onHold(), 60); }, 180);
@@ -385,7 +388,7 @@
 
     btn.addEventListener("click", (e) => {
       if (btn.disabled) return;
-      const now = (performance?.now?.() || Date.now());
+      const now = nowMs();
       if (now < suppressClickUntil) { e.preventDefault(); return; }
       e.preventDefault();
       onTap();
@@ -397,7 +400,7 @@
     const start = (e) => {
       if (btn.disabled) return;
       e?.preventDefault?.();
-      suppressClickUntil = (performance?.now?.() || Date.now()) + 450;
+      suppressClickUntil = nowMs() + CLICK_SUPPRESS_MS;
       fn();
     };
 
@@ -405,7 +408,7 @@
     btn.addEventListener("mousedown", start, { passive: false });
     btn.addEventListener("click", (e) => {
       if (btn.disabled) return;
-      const now = (performance?.now?.() || Date.now());
+      const now = nowMs();
       if (now < suppressClickUntil) { e.preventDefault(); return; }
       e.preventDefault();
       fn();
@@ -743,9 +746,9 @@
       if (soundOn) startBGM();
     }
 
-    function step(dt) {
+    function step(dtMs) {
       if (!paused && !gameOver) {
-        dropCounter += dt;
+        dropCounter += dtMs;
         if (dropCounter > getDropInterval()) {
           if (!collide(current.mat, current.x, current.y + 1)) current.y++;
           else lockPiece();
@@ -856,12 +859,12 @@
     tetris.onKeyDown(e);
   }, { passive: true });
 
-  // render loop
+  // render loop (time in ms from requestAnimationFrame)
   let lastTime = 0;
   function loop(time = 0) {
-    const dt = Math.min(0.05, (time - lastTime) / 1000);
+    const dtMs = Math.min(50, Math.max(0, time - lastTime));
     lastTime = time;
-    tetris.step(dt * 1000);
+    tetris.step(dtMs);
     tetris.render();
 
     requestAnimationFrame(loop);
