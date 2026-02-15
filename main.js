@@ -462,7 +462,70 @@
   function bindTap(btn, fn) {
     const suppressor = makeClickSuppressor(CLICK_SUPPRESS_MS);
 
-    const start = (e) => {
+    // For critical single-tap buttons (rotate / hard drop):
+    // - keep it fast (fire near touchstart)
+    // - but allow cancel if the finger slides off (reduces accidental mis-taps)
+    let pendingTimer = null;
+    let fired = false;
+    let armed = false; // becomes false if finger leaves the button
+
+    const clearPending = () => {
+      if (pendingTimer) clearTimeout(pendingTimer);
+      pendingTimer = null;
+    };
+
+    const fire = () => {
+      if (fired) return;
+      fired = true;
+      clearPending();
+      fn();
+      hapticTap(8);
+    };
+
+    const startTouch = (e) => {
+      if (btn.disabled) return;
+      e?.preventDefault?.();
+      suppressor.mark();
+      fired = false;
+      armed = true;
+      clearPending();
+
+      // Tiny delay so a swipe-across can cancel before we commit the action.
+      pendingTimer = setTimeout(() => { if (armed) fire(); }, 28);
+    };
+
+    const stopTouch = (e) => {
+      e?.preventDefault?.();
+
+      // If the user tapped quickly and we haven't fired yet, commit on touchend
+      // (only if the finger didn't slide off the button).
+      if (!fired && armed) fire();
+
+      clearPending();
+      armed = false;
+    };
+
+    const cancelIfFingerLeaves = (e) => {
+      if (!pendingTimer || fired) return;
+      const touch = e?.touches?.[0];
+      if (!touch) return;
+      const rect = btn.getBoundingClientRect();
+      const x = touch.clientX;
+      const y = touch.clientY;
+      const inside = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+      if (!inside) {
+        armed = false;
+        clearPending();
+      }
+    };
+
+    btn.addEventListener("touchstart", startTouch, { passive: false });
+    btn.addEventListener("touchmove", cancelIfFingerLeaves, { passive: false });
+    btn.addEventListener("touchend", stopTouch, { passive: false });
+    btn.addEventListener("touchcancel", () => { clearPending(); fired = false; armed = false; }, { passive: false });
+
+    // Mouse/desktop: keep instant on press.
+    const startMouse = (e) => {
       if (btn.disabled) return;
       e?.preventDefault?.();
       suppressor.mark();
@@ -470,8 +533,8 @@
       hapticTap(8);
     };
 
-    btn.addEventListener("touchstart", start, { passive: false });
-    btn.addEventListener("mousedown", start, { passive: false });
+    btn.addEventListener("mousedown", startMouse, { passive: false });
+
     btn.addEventListener("click", (e) => {
       if (btn.disabled) return;
       const now = nowMs();
