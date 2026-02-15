@@ -656,6 +656,18 @@
       }
     }
 
+    // Helper: short-circuit variant for hot paths (collision checks).
+    function someFilledCell(mat, pred) {
+      for (let y = 0; y < mat.length; y++) {
+        const row = mat[y];
+        for (let x = 0; x < row.length; x++) {
+          if (!row[x]) continue;
+          if (pred(x, y)) return true;
+        }
+      }
+      return false;
+    }
+
     function cloneMatrix(m) { return m.map(r => r.slice()); }
 
     function rotateCW(mat) {
@@ -732,14 +744,7 @@
 
     function collide(mat, ox, oy) {
       // Hot-path: keep the checks explicit but centralize the rule definition.
-      for (let y = 0; y < mat.length; y++) {
-        const row = mat[y];
-        for (let x = 0; x < row.length; x++) {
-          if (!row[x]) continue;
-          if (isBlockedCell(x + ox, y + oy)) return true;
-        }
-      }
-      return false;
+      return someFilledCell(mat, (x, y) => isBlockedCell(x + ox, y + oy));
     }
 
     function mergePiece(p) {
