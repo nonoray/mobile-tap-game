@@ -338,6 +338,7 @@
     paused = true;
     btnPause.textContent = "Resume";
     btnPause.setAttribute('aria-pressed', 'true');
+    try { btnPause.title = 'Resume (P / Esc)'; } catch {}
     stopBGM();
     showOverlay(title || 'Hint', text || '');
 
@@ -347,8 +348,11 @@
   function pauseToggle(force) {
     if (gameOver) return;
     paused = (force === undefined) ? !paused : !!force;
-    btnPause.textContent = paused ? "Resume" : "Pause";
+    const pauseLabel = paused ? "Resume" : "Pause";
+    btnPause.textContent = pauseLabel;
     btnPause.setAttribute('aria-pressed', paused ? 'true' : 'false');
+    // Keep tooltip/label consistent for reduced hesitation (esp. keyboard users).
+    try { btnPause.title = paused ? 'Resume (P / Esc)' : 'Pause (P)'; } catch {}
 
     if (paused) {
       stopBGM();
@@ -777,6 +781,7 @@
       setBestUI(nextBest);
 
       btnPause.textContent = "Pause";
+      try { btnPause.title = 'Pause (P)'; } catch {}
       showOverlay("Game Over", `Score ${score} / Lines ${lines}\nBest ${nextBest}`);
     }
 
@@ -996,6 +1001,7 @@
       spawn();
       hideOverlay();
       btnPause.textContent = "Pause";
+      try { btnPause.title = 'Pause (P)'; } catch {}
       if (soundOn) startBGM();
     }
 

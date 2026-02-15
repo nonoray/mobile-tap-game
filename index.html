@@ -20,7 +20,7 @@
         <span class="pill">Best <b id="best">0</b></span>
       </div>
       <div class="top-actions">
-        <button id="btnSound" class="small" aria-label="toggle sound">Sound</button></div>
+        <button id="btnSound" class="small" aria-label="toggle sound" title="Sound">Sound</button></div>
     </header>
 
     <main class="main">
@@ -28,7 +28,7 @@
         <div class="gb">
           <div class="gb-header">DOT MATRIX WITH STEREO SOUND</div>
           <div class="screen">
-            <button id="btnPause" class="pause-fab" aria-label="pause">Ⅱ</button>
+            <button id="btnPause" class="pause-fab" aria-label="pause" aria-keyshortcuts="P" title="Pause (P)">Ⅱ</button>
             <canvas id="board" width="300" height="600" aria-label="game canvas"></canvas>
           </div>
           <div class="gb-footer" id="gameFooter">MINI TETRIS</div>
@@ -51,18 +51,18 @@
 
           <div class="panel">
             <div class="label">PRACTICE</div>
-            <button id="btnSpeedLock" class="small" aria-label="toggle fixed speed">Speed: AUTO</button>
+            <button id="btnSpeedLock" class="small" aria-label="toggle fixed speed" aria-keyshortcuts="L" title="Speed Lock (L)">Speed: AUTO</button>
             <div class="hint">速度を固定してドリル（Lキーでも切替）</div>
           </div>
         </div>
       </section>
 
       <section class="controls one-row" aria-label="touch controls">
-        <button class="ctl" id="btnLeft"  aria-label="move left">◀</button>
-        <button class="ctl" id="btnRight" aria-label="move right">▶</button>
-        <button class="ctl" id="btnRot"   aria-label="rotate">⟳</button>
-        <button class="ctl" id="btnDown"  aria-label="soft drop">▼</button>
-        <button class="ctl" id="btnDrop" aria-label="hard drop">DROP</button>
+        <button class="ctl" id="btnLeft"  aria-label="move left" aria-keyshortcuts="ArrowLeft" title="Move Left (←)">◀</button>
+        <button class="ctl" id="btnRight" aria-label="move right" aria-keyshortcuts="ArrowRight" title="Move Right (→)">▶</button>
+        <button class="ctl" id="btnRot"   aria-label="rotate" aria-keyshortcuts="ArrowUp Z X" title="Rotate (↑ / Z / X)">⟳</button>
+        <button class="ctl" id="btnDown"  aria-label="soft drop" aria-keyshortcuts="ArrowDown" title="Soft Drop (↓)">▼</button>
+        <button class="ctl" id="btnDrop" aria-label="hard drop" aria-keyshortcuts="Space" title="Hard Drop (Space)">DROP</button>
       </section>
 
       <section id="overlay" class="overlay hidden" role="dialog" aria-modal="true" aria-labelledby="overlayTitle" aria-describedby="overlayText">
@@ -70,8 +70,8 @@
           <div class="big" id="overlayTitle">Paused</div>
           <div class="smalltext" id="overlayText">Tap Resume to continue.</div>
           <div class="row">
-            <button id="btnResume" class="primary">Resume</button>
-            <button id="btnRestart">Restart</button>
+            <button id="btnResume" class="primary" aria-keyshortcuts="P Escape" title="Resume (P / Esc)">Resume</button>
+            <button id="btnRestart" aria-keyshortcuts="Enter" title="Restart (Enter on Game Over)">Restart</button>
           </div>
         </div>
       </section>
