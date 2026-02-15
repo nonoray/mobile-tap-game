@@ -365,17 +365,25 @@
     } catch {}
   }
 
+  function makeClickSuppressor(windowMs) {
+    let until = 0;
+    return {
+      mark() { until = nowMs() + windowMs; },
+      shouldSuppress(now) { return now < until; },
+    };
+  }
+
   function bindHold(btn, onTap, onHold) {
     let t = null;
     let r = null;
-    let suppressClickUntil = 0;
+    const suppressor = makeClickSuppressor(CLICK_SUPPRESS_MS);
 
     const start = (e) => {
       if (btn.disabled) return;
       e?.preventDefault?.();
 
       // Prevent a subsequent synthetic click from triggering a second tap.
-      suppressClickUntil = nowMs() + CLICK_SUPPRESS_MS;
+      suppressor.mark();
 
       onTap();
       hapticTap(8);
@@ -399,18 +407,19 @@
     btn.addEventListener("click", (e) => {
       if (btn.disabled) return;
       const now = nowMs();
-      if (now < suppressClickUntil) { e.preventDefault(); return; }
+      if (suppressor.shouldSuppress(now)) { e.preventDefault(); return; }
       e.preventDefault();
       onTap();
     }, { passive: false });
   }
+
   function bindTap(btn, fn) {
-    let suppressClickUntil = 0;
+    const suppressor = makeClickSuppressor(CLICK_SUPPRESS_MS);
 
     const start = (e) => {
       if (btn.disabled) return;
       e?.preventDefault?.();
-      suppressClickUntil = nowMs() + CLICK_SUPPRESS_MS;
+      suppressor.mark();
       fn();
       hapticTap(8);
     };
@@ -420,7 +429,7 @@
     btn.addEventListener("click", (e) => {
       if (btn.disabled) return;
       const now = nowMs();
-      if (now < suppressClickUntil) { e.preventDefault(); return; }
+      if (suppressor.shouldSuppress(now)) { e.preventDefault(); return; }
       e.preventDefault();
       fn();
     }, { passive: false });
