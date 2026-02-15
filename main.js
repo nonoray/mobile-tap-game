@@ -405,6 +405,13 @@
     };
   }
 
+  function isTouchInsideElement(el, touch) {
+    const rect = el.getBoundingClientRect();
+    const x = touch.clientX;
+    const y = touch.clientY;
+    return x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
+  }
+
   function bindHold(btn, onTap, onHold) {
     let t = null;
     let r = null;
@@ -434,11 +441,7 @@
       if (!t && !r) return; // not active
       const touch = e?.touches?.[0];
       if (!touch) return;
-      const rect = btn.getBoundingClientRect();
-      const x = touch.clientX;
-      const y = touch.clientY;
-      const inside = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-      if (!inside) stop(e);
+      if (!isTouchInsideElement(btn, touch)) stop(e);
     };
 
     btn.addEventListener("touchstart", start, { passive: false });
@@ -509,11 +512,7 @@
       if (!pendingTimer || fired) return;
       const touch = e?.touches?.[0];
       if (!touch) return;
-      const rect = btn.getBoundingClientRect();
-      const x = touch.clientX;
-      const y = touch.clientY;
-      const inside = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
-      if (!inside) {
+      if (!isTouchInsideElement(btn, touch)) {
         armed = false;
         clearPending();
       }
