@@ -76,6 +76,12 @@
   let bgTimer = null;
   let soundOn = false;
 
+  // Persist small settings (safe for GitHub Pages)
+  const SOUND_KEY = 'miniArcade.sound';
+  const readSoundPref = () => {
+    try { return localStorage.getItem(SOUND_KEY) === '1'; } catch { return false; }
+  };
+
   function ensureAudio() {
     if (audioCtx) return;
     const AC = window.AudioContext || window.webkitAudioContext;
@@ -94,14 +100,20 @@
     sfxGain.connect(master);
   }
 
-  function setSound(on) {
+  function setSound(on, { persist = true } = {}) {
     ensureAudio();
     soundOn = !!on;
+
     if (!audioCtx) {
       btnSound.textContent = "Sound: N/A";
       btnSound.disabled = true;
       return;
     }
+
+    if (persist) {
+      try { localStorage.setItem(SOUND_KEY, soundOn ? '1' : '0'); } catch {}
+    }
+
     btnSound.textContent = soundOn ? "Sound: ON" : "Sound: OFF";
     if (soundOn) {
       audioCtx.resume?.();
@@ -1017,7 +1029,7 @@
   }
 
   // start
-  setSound(false);
+  setSound(readSoundPref(), { persist: false });
   paused = true;
   showMenu();
   requestAnimationFrame(loop);
