@@ -423,6 +423,10 @@
 
     const start = (e) => {
       if (btn.disabled) return;
+      // Multi-touch (second finger, accidental palm contact) can cause unintended actions.
+      // Ignore it to keep controls deterministic during practice.
+      if (e?.touches && e.touches.length > 1) { try { e.preventDefault(); } catch {} return; }
+
       e?.preventDefault?.();
 
       // Prevent a subsequent synthetic click from triggering a second tap.
@@ -495,6 +499,10 @@
 
     const startTouch = (e) => {
       if (btn.disabled) return;
+      // Multi-touch (second finger, accidental palm contact) can cause unintended actions.
+      // Ignore it to keep controls deterministic during practice.
+      if (e?.touches && e.touches.length > 1) { try { e.preventDefault(); } catch {} return; }
+
       e?.preventDefault?.();
       suppressor.mark();
       fired = false;
