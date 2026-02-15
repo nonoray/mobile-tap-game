@@ -33,3 +33,4 @@
 - [Refactor] 衝突判定 collide() を「明示的な二重ループ + 早期return」へ整理（判定ルールは維持）。将来の当たり判定調整でバグを混ぜにくく。
 - [UI] 回転（⟳）/ハードドロップ（DROP）などの単発ボタンは、タップ開始からごく短い猶予を置き、指がボタン外にスライドしたら発火をキャンセルできるように（スワイプで横切った時の誤爆を減らす）。
 - [Refactor] タッチ操作の「指がボタン内にいるか」判定を isTouchInsideElement() に共通化（bindHold/bindTap）。挙動は維持。
+- [Refactor] Tetrisの各操作（move/rotate/drop）の「paused/gameOverガード」を isInputLocked() に集約。将来の入力/タイミング調整で条件がズレて事故りにくく（挙動は維持）。

@@ -799,6 +799,12 @@
       return Math.max(FALL_SPEED.minMs, FALL_SPEED.baseMs - (effectiveLevel - 1) * FALL_SPEED.perLevelMs);
     }
 
+    // Centralize the "can act" guard so future input/timing tweaks don't
+    // accidentally diverge between actions.
+    function isInputLocked() {
+      return paused || gameOver;
+    }
+
     function ghostY() {
       let y = current.y;
       while (!collide(current.mat, current.x, y + 1)) y++;
@@ -934,7 +940,7 @@
     }
 
     function hardDrop() {
-      if (paused || gameOver) return;
+      if (isInputLocked()) return;
       let y = current.y;
       while (!collide(current.mat, current.x, y + 1)) y++;
       current.y = y;
@@ -943,7 +949,7 @@
     }
 
     function softDrop() {
-      if (paused || gameOver) return;
+      if (isInputLocked()) return;
       if (!collide(current.mat, current.x, current.y + 1)) {
         current.y++;
         score += 1;
@@ -954,7 +960,7 @@
     }
 
     function move(dx) {
-      if (paused || gameOver) return;
+      if (isInputLocked()) return;
       const nx = current.x + dx;
       if (!collide(current.mat, nx, current.y)) {
         current.x = nx;
@@ -963,7 +969,7 @@
     }
 
     function rotate() {
-      if (paused || gameOver) return;
+      if (isInputLocked()) return;
       const rotated = rotateCW(current.mat);
       for (const k of ROTATION_KICKS) {
         if (!collide(rotated, current.x + k, current.y)) {
