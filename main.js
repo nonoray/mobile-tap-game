@@ -545,6 +545,19 @@
     const LINE_CLEAR_SFX = Object.freeze({ 1: 660, 2: 740, 3: 880, 4: 990 });
     const ROTATION_KICKS = Object.freeze([0, -1, 1, -2, 2]);
 
+    // Helper: iterate only the filled cells of a piece matrix.
+    // Centralizing this reduces off-by-one / loop-copy bugs when tuning collisions
+    // or adding new render/physics features later.
+    function forEachFilledCell(mat, fn) {
+      for (let y = 0; y < mat.length; y++) {
+        const row = mat[y];
+        for (let x = 0; x < row.length; x++) {
+          if (!row[x]) continue;
+          fn(x, y);
+        }
+      }
+    }
+
     function cloneMatrix(m) { return m.map(r => r.slice()); }
 
     function rotateCW(mat) {
@@ -611,24 +624,25 @@
     }
 
     function collide(mat, ox, oy) {
-      for (let y = 0; y < mat.length; y++) for (let x = 0; x < mat[y].length; x++) {
-        if (!mat[y][x]) continue;
+      let hit = false;
+      forEachFilledCell(mat, (x, y) => {
+        if (hit) return;
         const bx = x + ox;
         const by = y + oy;
-        if (bx < 0 || bx >= COLS || by >= ROWS) return true;
-        if (by >= 0 && board[by][bx]) return true;
-      }
+        if (bx < 0 || bx >= COLS || by >= ROWS) { hit = true; return; }
+        if (by >= 0 && board[by][bx]) { hit = true; return; }
+      });
+      if (hit) return true;
       return false;
     }
 
     function mergePiece(p) {
       const { mat, x: ox, y: oy, type } = p;
-      for (let y = 0; y < mat.length; y++) for (let x = 0; x < mat[y].length; x++) {
-        if (!mat[y][x]) continue;
+      forEachFilledCell(mat, (x, y) => {
         const bx = x + ox;
         const by = y + oy;
         if (by >= 0 && by < ROWS && bx >= 0 && bx < COLS) board[by][bx] = type;
-      }
+      });
     }
 
     function clearLines() {
@@ -783,21 +797,19 @@
       }
 
       const gy = ghostY();
-      for (let y = 0; y < current.mat.length; y++) for (let x = 0; x < current.mat[y].length; x++) {
-        if (!current.mat[y][x]) continue;
+      forEachFilledCell(current.mat, (x, y) => {
         const bx = current.x + x;
         const by = gy + y;
-        if (by < 0) continue;
+        if (by < 0) return;
         drawGhostBlock(bx, by);
-      }
+      });
 
-      for (let y = 0; y < current.mat.length; y++) for (let x = 0; x < current.mat[y].length; x++) {
-        if (!current.mat[y][x]) continue;
+      forEachFilledCell(current.mat, (x, y) => {
         const bx = current.x + x;
         const by = current.y + y;
-        if (by < 0) continue;
+        if (by < 0) return;
         drawBlock(bx, by, COLORS[current.type] || "#fff", 1);
-      }
+      });
     }
 
     function drawNext() {
@@ -812,8 +824,7 @@
       nextCtx.fillStyle = "rgba(255,255,255,.06)";
       nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
 
-      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
-        if (!mat[y][x]) continue;
+      forEachFilledCell(mat, (x, y) => {
         const px = (ox + x) * size;
         const py = (oy + y) * size;
 
@@ -837,7 +848,7 @@
         nextCtx.lineWidth = 1;
         nextCtx.strokeStyle = "rgba(255,255,255,.20)";
         nextCtx.strokeRect(px + 2.5, py + 2.5, size - 5, size - 5);
-      }
+      });
     }
 
     function hardDrop() {
