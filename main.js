@@ -32,6 +32,11 @@
     if (shouldBlockGesture(e)) e.preventDefault();
   }, { passive: false });
 
+  // Android/iOS: prevent long-press context menu on the game area
+  document.addEventListener('contextmenu', (e) => {
+    if (shouldBlockGesture(e)) e.preventDefault();
+  }, { passive: false });
+
   const $ = (id) => document.getElementById(id);
 
   const canvas = $("board");

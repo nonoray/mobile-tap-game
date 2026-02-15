@@ -121,6 +121,9 @@ button{
   box-shadow: 0 10px 24px rgba(255,79,184,.10);
   transition: transform .12s ease, filter .12s ease, box-shadow .12s ease;
   -webkit-tap-highlight-color: transparent;
+  /* iOS: avoid long-press selection/callout on controls */
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
   user-select:none;
   touch-action: manipulation;
 }
@@ -220,6 +223,10 @@ canvas{
   border:1px solid rgba(255,255,255,.16);
   border-radius:14px;
   touch-action:none;
+  /* iOS: prevent long-press callout / text selection around the game canvas */
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  user-select:none;
   box-shadow:
     0 0 0 1px rgba(255,79,184,.10) inset,
     0 14px 40px rgba(0,0,0,.25);
