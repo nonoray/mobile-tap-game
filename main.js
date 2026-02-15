@@ -216,6 +216,32 @@
   let paused = false;
   let gameOver = false;
 
+  // Mobile UX: keep the screen awake during active gameplay when supported.
+  // (Prevents the display from dimming/locking mid-run on mobile browsers.)
+  let wakeLock = null;
+  async function requestWakeLock() {
+    try {
+      if (!('wakeLock' in navigator)) return;
+      if (wakeLock) return;
+      // Only request while we're visible; browsers reject otherwise.
+      if (document.hidden) return;
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', () => { wakeLock = null; });
+    } catch {
+      // Best-effort only.
+      wakeLock = null;
+    }
+  }
+  async function releaseWakeLock() {
+    try { await wakeLock?.release?.(); } catch {}
+    wakeLock = null;
+  }
+  function updateWakeLock() {
+    const activePlay = (mode !== 'menu') && !paused && !gameOver && !document.hidden;
+    if (activePlay) requestWakeLock();
+    else releaseWakeLock();
+  }
+
   // Accessibility: keep focus inside the modal overlay and restore it on close.
   let lastFocusEl = null;
 
@@ -264,12 +290,16 @@
       startBGM();
       hideOverlay();
     }
+
+    updateWakeLock();
   }
 
   // Stability: auto-pause when the tab/app goes to background.
   // (Prevents unfair deaths + keeps audio sane on mobile browsers.)
   document.addEventListener('visibilitychange', () => {
     if (document.hidden && mode !== 'menu' && !paused && !gameOver) pauseToggle(true);
+    // WakeLock is invalid in background on most browsers.
+    updateWakeLock();
   }, { passive: true });
 
   window.addEventListener('blur', () => {
@@ -400,6 +430,7 @@
     gameOver = false;
     stopBGM();
     hideOverlay();
+    updateWakeLock();
     menuScreen.classList.remove('hidden');
     gameScreen.classList.add('hidden');
 
@@ -1131,6 +1162,7 @@
   function startTetris({ route = true } = {}) {
     mode = 'tetris';
     showGame();
+    updateWakeLock();
     tetris.hud();
     setBestUI(readBest(BEST_TETRIS_KEY));
     if (tetrisSide) tetrisSide.classList.remove('hidden');
@@ -1156,6 +1188,7 @@
   function startInvaders({ route = true } = {}) {
     mode = 'invaders';
     showGame();
+    updateWakeLock();
     invaders.hud();
     setBestUI(readBest(BEST_INVADERS_KEY));
     if (tetrisSide) tetrisSide.classList.add('hidden');
@@ -1233,6 +1266,7 @@
   // start
   setSound(readSoundPref(), { persist: false });
   paused = true;
+  updateWakeLock();
 
   // Support deep links + mobile hardware Back button
   window.addEventListener('hashchange', () => {
