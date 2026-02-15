@@ -59,6 +59,7 @@
   const btnMenu = null;
   const btnResume = $("btnResume");
   const btnRestart = $("btnRestart");
+  const btnSpeedLock = $("btnSpeedLock");
   // menu removed (Tetris-only)
   const menuScreen = null;
   const gameScreen = $("gameScreen");
@@ -86,6 +87,7 @@
   // Persist small settings (safe for GitHub Pages)
   const SOUND_KEY = 'miniArcade.sound';
   const BEST_TETRIS_KEY = 'miniArcade.best.tetris';
+  const TETRIS_SPEEDLOCK_KEY = 'miniArcade.tetris.speedLock';
 
   // One-time in-game hint (first run per game)
   const HINT_TETRIS_KEY = 'miniArcade.hint.tetris';
@@ -110,6 +112,28 @@
   function setBestUI(value) {
     if (!bestEl) return;
     bestEl.textContent = String(value || 0);
+  }
+
+  function readSpeedLockPref() {
+    try {
+      const raw = localStorage.getItem(TETRIS_SPEEDLOCK_KEY);
+      if (!raw) return null;
+      const v = Number(raw);
+      return Number.isFinite(v) && v > 0 ? v : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeSpeedLockPref(v) {
+    try {
+      if (!v) localStorage.removeItem(TETRIS_SPEEDLOCK_KEY);
+      else localStorage.setItem(TETRIS_SPEEDLOCK_KEY, String(v));
+    } catch {}
+  }
+
+  function speedLockLabel(v) {
+    return v ? `Speed: Lv${v}` : 'Speed: AUTO';
   }
 
   function ensureAudio() {
@@ -523,6 +547,29 @@
     let lines = 0;
     let level = 1;
 
+    // Practice helper: keep fall speed fixed to a chosen level.
+    // Useful for drilling a specific tempo without the game speeding up.
+    let speedLockLevel = readSpeedLockPref();
+
+    function updateSpeedLockUI() {
+      if (!btnSpeedLock) return;
+      btnSpeedLock.textContent = speedLockLabel(speedLockLevel);
+      btnSpeedLock.setAttribute('aria-pressed', speedLockLevel ? 'true' : 'false');
+    }
+
+    function cycleSpeedLock() {
+      // Cycle: AUTO -> Lv1 -> Lv5 -> Lv10 -> AUTO
+      const seq = [null, 1, 5, 10];
+      const idx = seq.findIndex(v => v === speedLockLevel);
+      speedLockLevel = seq[(idx + 1) % seq.length];
+      writeSpeedLockPref(speedLockLevel);
+      updateSpeedLockUI();
+
+      // Tiny confirmation chirp (different pitch for AUTO vs locked)
+      if (speedLockLevel) beep({ f: 740, t: 0.05, type: 'square', gain: 0.12 });
+      else beep({ f: 520, t: 0.05, type: 'triangle', gain: 0.10 });
+    }
+
     function updateHUD() {
       if (scoreEl) scoreEl.textContent = String(score);
       if (stat2El) stat2El.textContent = String(lines);
@@ -632,7 +679,8 @@
     };
 
     function getDropInterval() {
-      return Math.max(FALL_SPEED.minMs, FALL_SPEED.baseMs - (level - 1) * FALL_SPEED.perLevelMs);
+      const effectiveLevel = speedLockLevel || level;
+      return Math.max(FALL_SPEED.minMs, FALL_SPEED.baseMs - (effectiveLevel - 1) * FALL_SPEED.perLevelMs);
     }
 
     function ghostY() {
@@ -803,6 +851,7 @@
       paused = false;
       next = null;
       dropCounter = 0;
+      updateSpeedLockUI();
       updateHUD();
       spawn();
       hideOverlay();
@@ -850,6 +899,7 @@
 
     function onKeyDown(e) {
       if (e.key === "p" || e.key === "P") { pauseToggle(); return true; }
+      if (e.key === "l" || e.key === "L") { cycleSpeedLock(); return true; }
       if (paused && (e.key === "Escape")) { pauseToggle(false); return true; }
       if (gameOver && (e.key === "Enter")) { restart(); return true; }
       if (paused || gameOver) return false;
@@ -871,6 +921,7 @@
       render,
       bindControls,
       onKeyDown,
+      cycleSpeedLock,
       hud: () => setHUD({ title: 'Mini Tetris', footer: 'MINI TETRIS', stat2Label: 'Lines' }),
       showSide: () => { if (tetrisSide) tetrisSide.classList.remove('hidden'); if (nextCanvas) nextCanvas.closest('.panel')?.classList.remove('hidden'); }
     };
@@ -893,6 +944,7 @@
         '  ⟳    回転',
         '  ▼    ソフトドロップ',
         '  DROP ハードドロップ',
+        '  L     速度固定（練習）',
         '',
         '右上の Ⅱ で一時停止できます。',
       ].join('\n')
@@ -923,6 +975,13 @@
   bindTap(btnRestart, () => {
     tetris.restart();
   });
+
+  if (btnSpeedLock) {
+    bindTap(btnSpeedLock, () => {
+      tetris.cycleSpeedLock();
+    });
+  }
+
   // keyboard
   window.addEventListener("keydown", (e) => {
     tetris.onKeyDown(e);
