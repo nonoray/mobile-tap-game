@@ -703,20 +703,22 @@
       return { type, mat: cloneMatrix(PIECES[type]), x: (COLS / 2 | 0) - 2, y: -2 };
     }
 
+    // Collision rules (unchanged):
+    // - Left/right/out-the-bottom => collision
+    // - Above the top (by < 0) is allowed
+    // - Overlapping an occupied cell (by >= 0) => collision
+    function isBlockedCell(bx, by) {
+      if (bx < 0 || bx >= COLS || by >= ROWS) return true;
+      return (by >= 0) && !!board[by][bx];
+    }
+
     function collide(mat, ox, oy) {
-      // Hot-path: avoid closures/flags and keep the collision rules explicit.
-      // Rules (unchanged):
-      // - Left/right/out-the-bottom => collision
-      // - Above the top (by < 0) is allowed
-      // - Overlapping an occupied cell (by >= 0) => collision
+      // Hot-path: keep the checks explicit but centralize the rule definition.
       for (let y = 0; y < mat.length; y++) {
         const row = mat[y];
         for (let x = 0; x < row.length; x++) {
           if (!row[x]) continue;
-          const bx = x + ox;
-          const by = y + oy;
-          if (bx < 0 || bx >= COLS || by >= ROWS) return true;
-          if (by >= 0 && board[by][bx]) return true;
+          if (isBlockedCell(x + ox, y + oy)) return true;
         }
       }
       return false;
