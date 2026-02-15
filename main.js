@@ -899,13 +899,18 @@
     });
   }
 
-  btnSound.addEventListener('click', () => setSound(!soundOn));
+  // Use the same tap handler as the gameplay buttons:
+  // - faster response on mobile (touchstart)
+  // - suppress synthetic follow-up click (prevents double toggle)
+  // - tiny haptic confirmation
+  bindTap(btnSound, () => setSound(!soundOn));
 
-  btnPause.addEventListener("click", () => {
+  bindTap(btnPause, () => {
     if (paused) pauseToggle(false);
     else pauseToggle(true);
   });
-  btnResume.addEventListener("click", () => pauseToggle(false));
+
+  bindTap(btnResume, () => pauseToggle(false));
 
   // Mobile UX: allow tapping the dimmed backdrop to resume (when it's a normal pause).
   // (Avoids accidental resumes by requiring the click target to be the overlay itself, not the card.)
@@ -915,7 +920,7 @@
     if ((overlayTitle?.textContent || '') !== 'Paused') return;
     pauseToggle(false);
   }, { passive: true });
-  btnRestart.addEventListener("click", () => {
+  bindTap(btnRestart, () => {
     tetris.restart();
   });
   // keyboard

@@ -19,3 +19,4 @@
 - [UI] 入力誤爆（スクロール/ズーム系）を減らすため、プレイ画面（.screen）と操作バー（.controls）に touch-action:none を追加（対応ブラウザでデフォルトジェスチャーを抑止）。
 - [UI] [A11y] さらに誤爆を減らすため、Pauseボタンと各操作ボタン（.ctl）にも touch-action:none を追加（ボタン上からのスワイプでページが動く/ズームする事故を抑止）。
 - [Refactor] タッチ/マウス入力の「クリック抑止（touchstart/mousedown後のsynthetic click二重発火防止）」ロジックを makeClickSuppressor() に集約。挙動は維持しつつ、入力まわりの修正点を一点化。
+- [UI] ポーズ/サウンド/Resume/Restart もタッチ用の bindTap() 経由に統一（touchstart優先 + synthetic click抑止 + haptics）。モバイルでの二重トグルや反応遅れによる誤爆を減らす。
