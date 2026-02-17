@@ -74,6 +74,7 @@
   const btnRot = $("btnRot");
   const btnDown = $("btnDown");
   const btnDrop = $("btnDrop");
+  let restartHoldControl = null;
 
   // Touch controls are fixed for Tetris-only mode.
 
@@ -272,6 +273,15 @@
   function showOverlay(title, text) {
     overlayTitle.textContent = title;
     overlayText.textContent = text;
+
+    if (btnRestart) {
+      const pausedDialog = title === 'Paused';
+      const idleLabel = pausedDialog ? 'Hold Restart' : 'Restart';
+      restartHoldControl?.setIdleLabel(idleLabel);
+      btnRestart.textContent = idleLabel;
+      btnRestart.setAttribute('aria-label', pausedDialog ? 'hold to restart' : 'restart');
+      btnRestart.title = pausedDialog ? 'Hold to Restart' : 'Restart';
+    }
 
     // While the modal is up, hard-disable the gameplay touch buttons.
     // (Prevents accidental inputs + avoids misleading haptic pulses.)
@@ -574,6 +584,73 @@
       e.preventDefault();
       fn();
     }, { passive: false });
+  }
+
+  function bindHoldConfirm(btn, fn, {
+    holdMs = 550,
+    pendingLabel = 'Hold…',
+    idleLabel = null,
+  } = {}) {
+    let timer = null;
+    let fired = false;
+    let baseLabel = idleLabel ?? btn.textContent;
+
+    const setLabel = (text) => {
+      if (typeof text !== 'string') return;
+      btn.textContent = text;
+    };
+
+    const reset = () => {
+      if (timer) clearTimeout(timer);
+      timer = null;
+      setLabel(baseLabel);
+      try { btn.classList.remove('is-pressed'); } catch {}
+    };
+
+    const start = (e) => {
+      if (btn.disabled) return;
+      if (e?.touches && e.touches.length > 1) { try { e.preventDefault(); } catch {} return; }
+      e?.preventDefault?.();
+      fired = false;
+      setLabel(pendingLabel);
+      try { btn.classList.add('is-pressed'); } catch {}
+      timer = setTimeout(() => {
+        fired = true;
+        fn();
+        hapticTap(12);
+        reset();
+      }, holdMs);
+    };
+
+    const stop = (e) => {
+      e?.preventDefault?.();
+      if (!fired) reset();
+    };
+
+    const cancelIfFingerLeaves = (e) => {
+      if (!timer || fired) return;
+      const touch = e?.touches?.[0];
+      if (!touch) return;
+      if (!isTouchInsideElement(btn, touch)) reset();
+    };
+
+    btn.addEventListener('touchstart', start, { passive: false });
+    btn.addEventListener('touchmove', cancelIfFingerLeaves, { passive: false });
+    btn.addEventListener('touchend', stop, { passive: false });
+    btn.addEventListener('touchcancel', reset, { passive: false });
+
+    btn.addEventListener('mousedown', start, { passive: false });
+    btn.addEventListener('mouseup', stop, { passive: false });
+    btn.addEventListener('mouseleave', reset, { passive: false });
+    btn.addEventListener('click', (e) => e.preventDefault(), { passive: false });
+
+    return {
+      setIdleLabel(text) {
+        if (typeof text !== 'string') return;
+        baseLabel = text;
+        if (!timer) setLabel(baseLabel);
+      }
+    };
   }
 
   // We bind once, route to current handlers.
@@ -1165,6 +1242,21 @@
 
   bindTap(btnResume, () => pauseToggle(false));
 
+  // Reduce accidental run resets: Restart requires a short hold during normal Pause,
+  // but remains a single tap on Game Over for quick retry drills.
+  restartHoldControl = bindHoldConfirm(btnRestart, () => {
+    if (!paused || gameOver) return;
+    tetris.restart();
+  }, {
+    holdMs: 550,
+    pendingLabel: 'Hold…',
+    idleLabel: 'Restart',
+  });
+
+  bindTap(btnRestart, () => {
+    if (gameOver) tetris.restart();
+  });
+
   // Mobile UX: allow tapping the dimmed backdrop to resume (when it's a normal pause).
   // (Avoids accidental resumes by requiring the click target to be the overlay itself, not the card.)
   overlay.addEventListener('click', (e) => {
@@ -1173,9 +1265,6 @@
     if ((overlayTitle?.textContent || '') !== 'Paused') return;
     pauseToggle(false);
   }, { passive: true });
-  bindTap(btnRestart, () => {
-    tetris.restart();
-  });
 
   if (btnSpeedLock) {
     bindTap(btnSpeedLock, () => {
