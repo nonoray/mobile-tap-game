@@ -1006,6 +1006,22 @@
       ctx.globalAlpha = 1;
     }
 
+    // Active piece cue: add a crisp highlight ring only to the falling piece so
+    // "what to move now" is instantly distinguishable from the stack.
+    function drawActiveBlock(x, y, color) {
+      const px = x * BLOCK;
+      const py = y * BLOCK;
+      drawBlock(x, y, color, 1);
+      ctx.save();
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "rgba(255,255,255,.65)";
+      ctx.strokeRect(px + 3, py + 3, BLOCK - 6, BLOCK - 6);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(255,255,255,.25)";
+      ctx.strokeRect(px + 1.5, py + 1.5, BLOCK - 3, BLOCK - 3);
+      ctx.restore();
+    }
+
     // Ghost piece: outline-only, high-contrast, dashed.
     // Goal: you can read landing position instantly without confusing it with a placed piece.
     function drawGhostBlock(x, y) {
@@ -1094,7 +1110,7 @@
         const bx = current.x + x;
         const by = current.y + y;
         if (by < 0) return;
-        drawBlock(bx, by, COLORS[current.type] || "#fff", 1);
+        drawActiveBlock(bx, by, COLORS[current.type] || "#fff");
       });
     }
 
