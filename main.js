@@ -998,14 +998,28 @@
       lockPiece();
     }
 
-    function softDrop() {
-      if (isInputLocked()) return;
+    // Move the active piece down by one row.
+    // Returns true when moved, false when it had to lock.
+    // Optional hooks keep gravity and soft-drop behavior aligned without duplicating logic.
+    function stepDownOneRow({ onMoved } = {}) {
       if (!collide(current.mat, current.x, current.y + 1)) {
         current.y++;
-        score += 1;
-        beep({ f: 330, t: 0.03, type: 'triangle', gain: 0.08 });
-        updateHUD();
-      } else lockPiece();
+        onMoved?.();
+        return true;
+      }
+      lockPiece();
+      return false;
+    }
+
+    function softDrop() {
+      if (isInputLocked()) return;
+      stepDownOneRow({
+        onMoved: () => {
+          score += 1;
+          beep({ f: 330, t: 0.03, type: 'triangle', gain: 0.08 });
+          updateHUD();
+        }
+      });
       dropCounter = 0;
     }
 
@@ -1054,8 +1068,7 @@
       if (!paused && !gameOver) {
         dropCounter += dtMs;
         if (dropCounter > getDropInterval()) {
-          if (!collide(current.mat, current.x, current.y + 1)) current.y++;
-          else lockPiece();
+          stepDownOneRow();
           dropCounter = 0;
         }
       }

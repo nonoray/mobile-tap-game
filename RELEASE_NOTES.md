@@ -1,5 +1,8 @@
 # Release Notes
 
+## 2026-02-17 (JST)
+- [Refactor] 1マス落下処理を stepDownOneRow() に集約し、自然落下（step）とソフトドロップ（softDrop）で同じ衝突/ロック経路を使うよう整理。挙動は維持しつつ、タイミング/当たり判定調整時の分岐ズレを防ぎやすくした。
+
 ## 2026-02-15 (JST)
 - [Refactor] 衝突判定のルール（境界/埋まり判定）を isBlockedCell() に分離して一元化。将来の当たり判定調整で条件がズレにくく（挙動は維持）。
 - [Feature] 練習用「速度固定（Speed Lock）」を追加（AUTO / Lv1 / Lv5 / Lv10 を切替）。Lキー or サイドのPRACTICEボタンで変更。設定は保存。
