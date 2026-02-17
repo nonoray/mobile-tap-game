@@ -261,6 +261,24 @@ canvas{
     0 14px 40px rgba(0,0,0,.25);
 }
 
+/* Improve NEXT readability: brighter high-contrast well + subtle grid for shape parsing */
+#next{
+  display:block;
+  width:min(100%, 140px);
+  aspect-ratio:1 / 1;
+  margin:0 auto;
+  border-radius:10px;
+  border-color: rgba(255,255,255,.26);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(0,0,0,.18)),
+    repeating-linear-gradient(0deg, rgba(255,255,255,.08) 0 1px, transparent 1px 15px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,.08) 0 1px, transparent 1px 15px),
+    rgba(11,8,18,.92);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,.14) inset,
+    0 8px 20px rgba(0,0,0,.28);
+}
+
 /* flashy effects */
 #board.flash{ animation: flash .22s ease; }
 @keyframes flash{ 0%{filter:brightness(1)} 50%{filter:brightness(1.6)} 100%{filter:brightness(1)} }
