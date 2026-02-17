@@ -276,7 +276,23 @@
   }
 
   // Accessibility: keep focus inside the modal overlay and restore it on close.
+  // Also make background controls inert while dialog is open to prevent accidental
+  // focus/navigation behind the modal (reduces mis-operations on keyboard/AT).
   let lastFocusEl = null;
+  const inertBackdropNodes = Array.from(document.querySelectorAll('.topbar, .game, .controls'));
+
+  function setBackdropInert(inert) {
+    for (const el of inertBackdropNodes) {
+      if (!el) continue;
+      if (inert) {
+        try { el.setAttribute('inert', ''); } catch {}
+        el.setAttribute('aria-hidden', 'true');
+      } else {
+        try { el.removeAttribute('inert'); } catch {}
+        el.removeAttribute('aria-hidden');
+      }
+    }
+  }
 
   function showOverlay(title, text) {
     overlayTitle.textContent = title;
@@ -294,6 +310,7 @@
     // While the modal is up, hard-disable the gameplay touch buttons.
     // (Prevents accidental inputs + avoids misleading haptic pulses.)
     setTouchControlsEnabled(false);
+    setBackdropInert(true);
 
     lastFocusEl = document.activeElement;
     overlay.classList.remove("hidden");
@@ -304,6 +321,9 @@
   }
   function hideOverlay() {
     overlay.classList.add("hidden");
+
+    // Re-enable interaction outside modal.
+    setBackdropInert(false);
 
     // Re-enable touch controls when leaving the modal (unless game-over keeps us paused).
     setTouchControlsEnabled(!paused && !gameOver);

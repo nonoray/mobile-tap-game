@@ -52,3 +52,4 @@
 - [UI] [A11y] タッチ操作のマルチタッチ（2本指/手のひら誤接触）を入力として扱わないようにして、意図しない回転/移動の誤爆を抑止（シングルタッチのみを有効化）。
 - [UI] 現在レベル（Lv）を上部HUDに常時表示。落下速度の変化点が一目で分かり、練習時の状況把握を速く。
 - [Refactor] Pauseボタン文言/aria/titleの更新を setPauseButtonState() に集約（pauseToggle / ヒント表示 / restart / game over の重複を削減）。挙動は維持。
+- [UI] [A11y] モーダル表示中、背面の主要操作領域（.topbar/.game/.controls）を inert + aria-hidden にしてフォーカス/読み上げを遮断。Pause中の背面誤操作とATの迷子を防止。
