@@ -330,6 +330,14 @@
     }
   }, { passive: false });
 
+  function setPauseButtonState(isPaused) {
+    const pauseLabel = isPaused ? "Resume" : "Pause";
+    btnPause.textContent = pauseLabel;
+    btnPause.setAttribute('aria-pressed', isPaused ? 'true' : 'false');
+    // Keep tooltip/label consistent for reduced hesitation (esp. keyboard users).
+    try { btnPause.title = isPaused ? 'Resume (P / Esc)' : 'Pause (P)'; } catch {}
+  }
+
   function showHintOnce(storageKey, { title, text } = {}) {
     let seen = false;
     try { seen = localStorage.getItem(storageKey) === '1'; } catch {}
@@ -337,9 +345,7 @@
 
     // Show as a paused modal so it's readable and doesn't cause unfair deaths.
     paused = true;
-    btnPause.textContent = "Resume";
-    btnPause.setAttribute('aria-pressed', 'true');
-    try { btnPause.title = 'Resume (P / Esc)'; } catch {}
+    setPauseButtonState(true);
     stopBGM();
     showOverlay(title || 'Hint', text || '');
 
@@ -349,11 +355,7 @@
   function pauseToggle(force) {
     if (gameOver) return;
     paused = (force === undefined) ? !paused : !!force;
-    const pauseLabel = paused ? "Resume" : "Pause";
-    btnPause.textContent = pauseLabel;
-    btnPause.setAttribute('aria-pressed', paused ? 'true' : 'false');
-    // Keep tooltip/label consistent for reduced hesitation (esp. keyboard users).
-    try { btnPause.title = paused ? 'Resume (P / Esc)' : 'Pause (P)'; } catch {}
+    setPauseButtonState(paused);
 
     if (paused) {
       stopBGM();
@@ -815,8 +817,7 @@
       if (nextBest !== prevBest) writeBest(BEST_TETRIS_KEY, nextBest);
       setBestUI(nextBest);
 
-      btnPause.textContent = "Pause";
-      try { btnPause.title = 'Pause (P)'; } catch {}
+      setPauseButtonState(false);
       showOverlay("Game Over", `Score ${score} / Lines ${lines}\nBest ${nextBest}`);
     }
 
@@ -1059,8 +1060,7 @@
       updateHUD();
       spawn();
       hideOverlay();
-      btnPause.textContent = "Pause";
-      try { btnPause.title = 'Pause (P)'; } catch {}
+      setPauseButtonState(false);
       if (soundOn) startBGM();
     }
 
