@@ -1102,6 +1102,34 @@
       }
 
       const gy = ghostY();
+
+      // Landing guide: faint vertical rails from current piece to ghost position.
+      // Purpose: make "where this move ends" obvious in peripheral vision.
+      const guideColumns = new Set();
+      forEachFilledCell(current.mat, (x, y) => {
+        const bx = current.x + x;
+        const fromY = current.y + y;
+        const toY = gy + y;
+        if (bx < 0 || bx >= COLS) return;
+        if (toY <= fromY) return;
+        const key = `${bx}:${fromY}:${toY}`;
+        if (guideColumns.has(key)) return;
+        guideColumns.add(key);
+
+        const px = bx * BLOCK + (BLOCK / 2);
+        const y1 = Math.max(0, fromY * BLOCK + 4);
+        const y2 = Math.min(ROWS * BLOCK, (toY + 1) * BLOCK - 4);
+        ctx.save();
+        ctx.lineWidth = 2;
+        ctx.setLineDash([3, 5]);
+        ctx.strokeStyle = "rgba(255, 244, 251, .22)";
+        ctx.beginPath();
+        ctx.moveTo(px, y1);
+        ctx.lineTo(px, y2);
+        ctx.stroke();
+        ctx.restore();
+      });
+
       forEachFilledCell(current.mat, (x, y) => {
         const bx = current.x + x;
         const by = gy + y;
