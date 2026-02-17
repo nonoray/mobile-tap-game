@@ -1202,22 +1202,29 @@
       touchActions.dropTap = () => hardDrop();
     }
 
+    const gameplayKeyActions = Object.freeze({
+      ArrowLeft: () => move(-1),
+      ArrowRight: () => move(1),
+      ArrowDown: () => softDrop(),
+      ' ': () => hardDrop(),
+      ArrowUp: () => rotate(),
+      z: () => rotate(),
+      Z: () => rotate(),
+      x: () => rotate(),
+      X: () => rotate(),
+    });
+
     function onKeyDown(e) {
       if (e.key === "p" || e.key === "P") { pauseToggle(); return true; }
       if (e.key === "l" || e.key === "L") { cycleSpeedLock(); return true; }
       if (paused && (e.key === "Escape")) { pauseToggle(false); return true; }
       if (gameOver && (e.key === "Enter")) { restart(); return true; }
       if (paused || gameOver) return false;
-      switch (e.key) {
-        case "ArrowLeft": move(-1); return true;
-        case "ArrowRight": move(1); return true;
-        case "ArrowDown": softDrop(); return true;
-        case " ": hardDrop(); return true;
-        case "ArrowUp": rotate(); return true;
-        case "z": case "Z": rotate(); return true;
-        case "x": case "X": rotate(); return true;
-      }
-      return false;
+
+      const action = gameplayKeyActions[e.key];
+      if (!action) return false;
+      action();
+      return true;
     }
 
     return {
