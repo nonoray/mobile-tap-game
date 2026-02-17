@@ -371,8 +371,11 @@
   }, { passive: false });
 
   function setPauseButtonState(isPaused) {
-    const pauseLabel = isPaused ? "Resume" : "Pause";
-    btnPause.textContent = pauseLabel;
+    // Keep the pause FAB shape stable: icon-only avoids width/word changes mid-game.
+    // (Reduces hesitation + accidental mis-taps when resuming quickly.)
+    const icon = isPaused ? '▶' : 'Ⅱ';
+    btnPause.textContent = icon;
+    btnPause.setAttribute('aria-label', isPaused ? 'resume' : 'pause');
     btnPause.setAttribute('aria-pressed', isPaused ? 'true' : 'false');
     // Keep tooltip/label consistent for reduced hesitation (esp. keyboard users).
     try { btnPause.title = isPaused ? 'Resume (P / Esc)' : 'Pause (P)'; } catch {}

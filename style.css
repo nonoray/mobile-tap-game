@@ -227,14 +227,15 @@ button:focus-visible{outline: 3px solid rgba(255,79,184,.55); outline-offset: 2p
 
 .pause-fab{
   position:absolute;
-  top:10px;
-  right:10px;
-  width:46px;
-  height:36px;
+  top:max(10px, env(safe-area-inset-top));
+  right:max(10px, env(safe-area-inset-right));
+  width:56px;
+  height:48px;
   padding:0;
-  border-radius:0px;
+  border-radius:12px;
   font-weight:1000;
-  letter-spacing:.08em;
+  font-size:20px;
+  letter-spacing:.02em;
   line-height:1;
   display:flex;
   align-items:center;
