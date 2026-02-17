@@ -241,6 +241,14 @@
   let paused = false;
   let gameOver = false;
 
+  // Input guard right after Resume/Restart:
+  // prevents accidental first-frame actions (e.g., unintended hard drop)
+  // caused by finger-up / synthetic click overlap on mobile.
+  let inputUnlockAt = 0;
+  function guardInputFor(ms = 0) {
+    inputUnlockAt = nowMs() + Math.max(0, ms);
+  }
+
   // Mobile UX: keep the screen awake during active gameplay when supported.
   // (Prevents the display from dimming/locking mid-run on mobile browsers.)
   let wakeLock = null;
@@ -371,6 +379,7 @@
       stopBGM();
       showOverlay("Paused", "Tap Resume to continue.");
     } else {
+      guardInputFor(180);
       startBGM();
       hideOverlay();
     }
@@ -937,7 +946,7 @@
     // Centralize the "can act" guard so future input/timing tweaks don't
     // accidentally diverge between actions.
     function isInputLocked() {
-      return paused || gameOver;
+      return paused || gameOver || nowMs() < inputUnlockAt;
     }
 
     function landingY(mat, x, yStart) {
@@ -1153,6 +1162,7 @@
       updateSpeedLockUI();
       updateHUD();
       spawn();
+      guardInputFor(220);
       hideOverlay();
       setPauseButtonState(false);
       if (soundOn) startBGM();
