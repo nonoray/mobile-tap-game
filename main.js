@@ -1032,6 +1032,25 @@
     function drawBoard() {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+      // Danger zone (top 4 rows): subtle tint + boundary line.
+      // Purpose: make "don't stack here" readable in peripheral vision,
+      // so recovery decisions happen faster under pressure.
+      const dangerRows = 4;
+      const dangerHeight = dangerRows * BLOCK;
+      const dangerGrad = ctx.createLinearGradient(0, 0, 0, dangerHeight);
+      dangerGrad.addColorStop(0, 'rgba(255, 77, 109, 0.20)');
+      dangerGrad.addColorStop(1, 'rgba(255, 77, 109, 0.00)');
+      ctx.fillStyle = dangerGrad;
+      ctx.fillRect(0, 0, COLS * BLOCK, dangerHeight);
+      ctx.strokeStyle = 'rgba(255, 120, 150, 0.45)';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([6, 4]);
+      ctx.beginPath();
+      ctx.moveTo(0, dangerHeight + 0.5);
+      ctx.lineTo(COLS * BLOCK, dangerHeight + 0.5);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
       // Subtle alternating row shading: improves height/stack readability at a glance
       // without adding decorative noise.
       for (let y = 0; y < ROWS; y++) {
