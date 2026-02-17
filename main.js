@@ -75,6 +75,8 @@
   const btnDown = $("btnDown");
   const btnDrop = $("btnDrop");
   let restartHoldControl = null;
+  let pauseButtonGuardUntil = 0;
+  const PAUSE_BUTTON_GUARD_MS = 260;
 
   // Touch controls are fixed for Tetris-only mode.
 
@@ -400,6 +402,7 @@
       showOverlay("Paused", "Tap Resume to continue.");
     } else {
       guardInputFor(180);
+      pauseButtonGuardUntil = nowMs() + PAUSE_BUTTON_GUARD_MS;
       startBGM();
       hideOverlay();
     }
@@ -1309,6 +1312,7 @@
   bindTap(btnSound, () => setSound(!soundOn));
 
   bindTap(btnPause, () => {
+    if (!paused && nowMs() < pauseButtonGuardUntil) return;
     if (paused) pauseToggle(false);
     else pauseToggle(true);
   });
