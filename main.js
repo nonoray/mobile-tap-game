@@ -432,6 +432,7 @@
   function bindHold(btn, onTap, onHold) {
     let t = null;
     let r = null;
+    let activeTouchId = null;
     const suppressor = makeClickSuppressor(CLICK_SUPPRESS_MS);
 
     const start = (e) => {
@@ -439,6 +440,10 @@
       // Multi-touch (second finger, accidental palm contact) can cause unintended actions.
       // Ignore it to keep controls deterministic during practice.
       if (e?.touches && e.touches.length > 1) { try { e.preventDefault(); } catch {} return; }
+
+      if (e?.type === 'touchstart') {
+        activeTouchId = e.changedTouches?.[0]?.identifier ?? null;
+      }
 
       e?.preventDefault?.();
 
@@ -458,13 +463,17 @@
       if (t) clearTimeout(t);
       if (r) clearInterval(r);
       t = null; r = null;
+      activeTouchId = null;
     };
 
     // Touch UX: if the finger slides off the button, cancel the hold repeat.
     // (Reduces accidental DAS/soft-drop when aiming for adjacent controls.)
     const stopIfFingerLeaves = (e) => {
       if (!t && !r) return; // not active
-      const touch = e?.touches?.[0];
+      const touchList = e?.touches || [];
+      const touch = activeTouchId == null
+        ? touchList[0]
+        : Array.from(touchList).find((tItem) => tItem.identifier === activeTouchId);
       if (!touch) return;
       if (!isTouchInsideElement(btn, touch)) stop(e);
     };
@@ -496,6 +505,7 @@
     let pendingTimer = null;
     let fired = false;
     let armed = false; // becomes false if finger leaves the button
+    let activeTouchId = null;
 
     const clearPending = () => {
       if (pendingTimer) clearTimeout(pendingTimer);
@@ -515,6 +525,8 @@
       // Multi-touch (second finger, accidental palm contact) can cause unintended actions.
       // Ignore it to keep controls deterministic during practice.
       if (e?.touches && e.touches.length > 1) { try { e.preventDefault(); } catch {} return; }
+
+      activeTouchId = e.changedTouches?.[0]?.identifier ?? null;
 
       e?.preventDefault?.();
       suppressor.mark();
@@ -538,11 +550,15 @@
       try { btn.classList.remove('is-pressed'); } catch {}
       clearPending();
       armed = false;
+      activeTouchId = null;
     };
 
     const cancelIfFingerLeaves = (e) => {
       if (!pendingTimer || fired) return;
-      const touch = e?.touches?.[0];
+      const touchList = e?.touches || [];
+      const touch = activeTouchId == null
+        ? touchList[0]
+        : Array.from(touchList).find((tItem) => tItem.identifier === activeTouchId);
       if (!touch) return;
       if (!isTouchInsideElement(btn, touch)) {
         armed = false;
@@ -559,6 +575,7 @@
       clearPending();
       fired = false;
       armed = false;
+      activeTouchId = null;
     }, { passive: false });
 
     // Mouse/desktop: keep instant on press.
